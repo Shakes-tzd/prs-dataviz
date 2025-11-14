@@ -1,8 +1,9 @@
 # /// script
 # requires-python = ">=3.13"
 # dependencies = [
-#     "matplotlib==3.10.7",
-#     "numpy==2.3.4",
+#     "prs-dataviz @ git+https://github.com/Shakes-tzd/prs-dataviz.git",
+#     "matplotlib>=3.7",
+#     "numpy>=1.24",
 #     "pillow>=10.0",
 #     "marimo>=0.17.7",
 # ]
@@ -75,115 +76,19 @@ def _():
     import numpy as np
     import matplotlib.pyplot as plt
     from matplotlib import font_manager
-    import sys
 
-    # For WASM compatibility, inline the package code
-    # In production, this would be: from prs_dataviz import *
-    return font_manager, np, plt, sys
-
-
-@app.cell
-def _(np, plt):
-    # ============================================================================
-    # PRS DATAVIZ - INLINED FOR WASM COMPATIBILITY
-    # ============================================================================
-
-    # Clinical Blue Palette
-    CLINICAL_BLUE = {
-        "Navy": "#1F4788",
-        "Steel Blue": "#4A7BA7",
-        "Sky Blue": "#7FA8C9",
-        "Light Blue": "#B8D4E8",
-        "Pale Blue": "#E3F0F7",
-    }
-
-    # Tissue Tone Palette
-    TISSUE_TONE = {
-        "Deep": "#C08060",
-        "Medium": "#D4A080",
-        "Light": "#E8C4A8",
-        "Pale": "#F5E0D0",
-        "Fair": "#FAF0E8",
-    }
-
-    # Clinical Data Palette
-    CLINICAL_DATA = {
-        "Primary": "#2C5F87",
-        "Secondary": "#7FA8C9",
-        "Tertiary": "#B89D6F",
-        "Accent": "#9B5D5D",
-        "Neutral": "#7A8A99",
-    }
-
-    # Comparison Palette
-    COMPARISON = {
-        "Before": "#8B7A7A",
-        "After": "#5B8F7D",
-        "Control": "#7A8A99",
-        "Treatment": "#9B7357",
-    }
-
-    # Statistical Palette
-    STATISTICAL = {
-        "Significant": "#5B8F7D",
-        "Highly Significant": "#2C5F87",
-        "Non-Significant": "#B8B8B8",
-        "Trend": "#D4A080",
-    }
-
-    # Color cycles
-    PRS_DEFAULT_CYCLE = [
-        "#2C5F87", "#B89D6F", "#5B8F7D", "#9B7357",
-        "#7A8A99", "#C08060", "#4A7BA7"
-    ]
-
-    PRS_CLINICAL_CYCLE = [
-        CLINICAL_DATA["Primary"],
-        CLINICAL_DATA["Secondary"],
-        CLINICAL_DATA["Tertiary"],
-        CLINICAL_DATA["Accent"],
-        CLINICAL_DATA["Neutral"],
-    ]
-
-    PRS_COMPARISON_CYCLE = [
-        COMPARISON["Before"],
-        COMPARISON["After"],
-    ]
-
-    def apply_prs_style(cycle="default", show_grid=False):
-        """Apply PRS styling to matplotlib."""
-        if cycle == "default":
-            colors = PRS_DEFAULT_CYCLE
-        elif cycle == "clinical":
-            colors = PRS_CLINICAL_CYCLE
-        elif cycle == "comparison":
-            colors = PRS_COMPARISON_CYCLE
-        else:
-            colors = PRS_DEFAULT_CYCLE
-
-        plt.rcParams.update({
-            "figure.facecolor": "white",
-            "axes.facecolor": "white",
-            "axes.edgecolor": "#333333",
-            "axes.linewidth": 1.0,
-            "axes.grid": show_grid,
-            "axes.spines.top": False,
-            "axes.spines.right": False,
-            "axes.prop_cycle": plt.cycler(color=colors),
-            "grid.alpha": 0.3,
-            "grid.color": "#CCCCCC",
-            "font.size": 10,
-            "axes.labelsize": 10,
-            "axes.titlesize": 12,
-            "axes.titleweight": "bold",
-            "xtick.labelsize": 9,
-            "ytick.labelsize": 9,
-            "legend.fontsize": 9,
-            "legend.frameon": True,
-            "legend.framealpha": 1.0,
-            "legend.edgecolor": "#CCCCCC",
-            "lines.linewidth": 1.5,
-        })
+    # Import from the actual prs-dataviz package
+    from prs_dataviz import (
+        CLINICAL_BLUE,
+        TISSUE_TONE,
+        CLINICAL_DATA,
+        COMPARISON,
+        STATISTICAL,
+        PRS_DEFAULT_CYCLE,
+        PRS_CLINICAL_CYCLE,
+        PRS_COMPARISON_CYCLE,
+        apply_prs_style,
+    )
 
     return (
         CLINICAL_BLUE,
@@ -195,6 +100,9 @@ def _(np, plt):
         STATISTICAL,
         TISSUE_TONE,
         apply_prs_style,
+        font_manager,
+        np,
+        plt,
     )
 
 
