@@ -1,0 +1,64 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "prs-dataviz"
+version = "0.1.0"
+description = "A professional dataviz design system for PRS (Plastic and Reconstructive Surgery) journal submissions"
+readme = "README.md"
+requires-python = ">=3.13"
+license = {text = "MIT"}
+authors = [
+    {name = "Moreen Njoroge", email = "moreen@example.com"}
+]
+keywords = ["matplotlib", "visualization", "medical", "plastic-surgery", "prs", "journal"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Healthcare Industry",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Visualization",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+]
+
+dependencies = [
+    "matplotlib>=3.7",
+    "numpy>=1.24",
+    "pillow>=10.0",
+    "colorspacious>=1.1.2",
+    "marimo>=0.17.7",
+]
+
+[project.optional-dependencies]
+docs = [
+    "marimo>=0.17.7",
+    "mkdocs>=1.6",
+    "mkdocs-material",
+]
+dev = [
+    "pytest>=7.0",
+    "black>=23.0",
+    "ruff>=0.1.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/moreen-njoroge/prs-dataviz"
+Documentation = "https://github.com/moreen-njoroge/prs-dataviz"
+Repository = "https://github.com/moreen-njoroge/prs-dataviz"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+prs_dataviz = ["py.typed"]
+
+[tool.black]
+line-length = 100
+target-version = ['py313']
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
