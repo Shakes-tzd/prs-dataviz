@@ -200,7 +200,7 @@ def _(mo):
 
 
 @app.cell
-def _(apply_prs_style, np, plt):
+def _(CLINICAL_DATA, apply_prs_style, np, plt):
     # Example 1: Statistical bar chart
     apply_prs_style(cycle="clinical", show_grid=True)
 
@@ -213,8 +213,11 @@ def _(apply_prs_style, np, plt):
     x = np.arange(len(categories))
     width = 0.35
 
-    bars1 = ax1.bar(x - width/2, control, width, label='Control', alpha=0.8)
-    bars2 = ax1.bar(x + width/2, treatment, width, label='Treatment', alpha=0.8)
+    # Use clinical palette colors explicitly
+    bars1 = ax1.bar(x - width/2, control, width, label='Control',
+                    color=CLINICAL_DATA["Primary"], alpha=0.8)
+    bars2 = ax1.bar(x + width/2, treatment, width, label='Treatment',
+                    color=CLINICAL_DATA["Secondary"], alpha=0.8)
 
     ax1.set_ylabel('Patient Satisfaction Score (%)', fontsize=11)
     ax1.set_xlabel('Follow-up Time', fontsize=11)
@@ -267,7 +270,7 @@ def _(mo):
 
 
 @app.cell
-def _(apply_prs_style, np, plt):
+def _(CLINICAL_DATA, apply_prs_style, np, plt):
     # Example 2: Line graph with confidence intervals
     apply_prs_style(cycle="clinical")
 
@@ -279,17 +282,19 @@ def _(apply_prs_style, np, plt):
     control_mean = np.array([50, 54, 58, 62, 65, 67, 68])
     control_std = np.array([8, 8, 7, 7, 6, 6, 6])
 
-    # Plot lines
+    # Plot lines with clinical palette colors
     ax2.plot(months, treatment_mean, marker='o', linewidth=2.5,
-             label='Treatment', markersize=7)
+             label='Treatment', markersize=7, color=CLINICAL_DATA["Primary"])
     ax2.plot(months, control_mean, marker='s', linewidth=2.5,
-             label='Control', markersize=7)
+             label='Control', markersize=7, color=CLINICAL_DATA["Secondary"])
 
-    # Add confidence intervals (±1 SD)
+    # Add confidence intervals (±1 SD) with matching colors
     ax2.fill_between(months, treatment_mean - treatment_std,
-                     treatment_mean + treatment_std, alpha=0.2)
+                     treatment_mean + treatment_std, alpha=0.2,
+                     color=CLINICAL_DATA["Primary"])
     ax2.fill_between(months, control_mean - control_std,
-                     control_mean + control_std, alpha=0.2)
+                     control_mean + control_std, alpha=0.2,
+                     color=CLINICAL_DATA["Secondary"])
 
     ax2.set_xlabel('Time Since Surgery (months)', fontsize=11)
     ax2.set_ylabel('Recovery Score', fontsize=11)
