@@ -1,8 +1,14 @@
 # PRS DataViz
 
+[![GitHub](https://img.shields.io/badge/GitHub-prs--dataviz-blue?logo=github)](https://github.com/Shakes-tzd/prs-dataviz)
+[![Python](https://img.shields.io/badge/Python-3.11%2B-blue?logo=python)](https://www.python.org)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
 **Professional Data Visualization Design System for Plastic and Reconstructive Surgery Research**
 
 A comprehensive Python package for creating publication-quality figures that meet [Plastic and Reconstructive Surgery (PRS)](https://journals.lww.com/plasreconsurg/) journal submission requirements.
+
+**🔗 Repository**: https://github.com/Shakes-tzd/prs-dataviz
 
 ## Features
 
@@ -37,13 +43,47 @@ Implements [Cara Thompson's 10-step methodology](https://www.cararthompson.com/t
 
 ## Installation
 
+### Install from GitHub (Recommended)
+
 ```bash
-# Install from local directory
-cd /Users/shakes/DevProjects/moreen_njoroge_dataviz_design_system
+# Using uv (recommended - 10-100x faster)
+uv pip install "prs-dataviz @ git+https://github.com/Shakes-tzd/prs-dataviz.git"
+
+# Or using pip
+pip install "git+https://github.com/Shakes-tzd/prs-dataviz.git"
+```
+
+### Install from Local Clone
+
+```bash
+# Clone the repository
+git clone https://github.com/Shakes-tzd/prs-dataviz.git
+cd prs-dataviz
+
+# Install with uv
+uv pip install -e .
+
+# Or install with pip
 pip install -e .
 
-# Or install with development dependencies
-pip install -e ".[dev]"
+# With development dependencies
+uv pip install -e ".[dev]"
+```
+
+### Use in PEP 723 Scripts
+
+For standalone scripts with inline dependencies (works with `uv run`):
+
+```python
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#     "prs-dataviz @ git+https://github.com/Shakes-tzd/prs-dataviz.git",
+# ]
+# ///
+
+from prs_dataviz import apply_prs_style
+# ... your code ...
 ```
 
 ## Quick Start
