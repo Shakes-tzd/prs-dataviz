@@ -1,7 +1,6 @@
 # /// script
 # requires-python = ">=3.13"
 # dependencies = [
-# dependencies = [
 #     "prs-dataviz @ git+https://github.com/Shakes-tzd/prs-dataviz.git",
 #     "matplotlib>=3.7",
 #     "numpy>=1.24",
