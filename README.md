@@ -43,7 +43,30 @@ Implements [Cara Thompson's 10-step methodology](https://www.cararthompson.com/t
 
 ## Installation
 
-### Install from GitHub (Recommended)
+### Prerequisites
+
+- **Python 3.11+** (required)
+- **Git** (for cloning the repository)
+- **uv** (recommended) or **pip** (package manager)
+
+#### Installing uv (Recommended)
+
+[uv](https://github.com/astral-sh/uv) is 10-100x faster than pip and handles virtual environments automatically:
+
+```bash
+# macOS/Linux
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Windows
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+
+# Or with pip
+pip install uv
+```
+
+### Quick Install (Recommended)
+
+The fastest way to get started - install directly from GitHub:
 
 ```bash
 # Using uv (recommended - 10-100x faster)
@@ -53,37 +76,155 @@ uv pip install "prs-dataviz @ git+https://github.com/Shakes-tzd/prs-dataviz.git"
 pip install "git+https://github.com/Shakes-tzd/prs-dataviz.git"
 ```
 
-### Install from Local Clone
+### Virtual Environment Setup
+
+For project-based work, use a virtual environment:
+
+```bash
+# Create and activate virtual environment with uv
+uv venv
+source .venv/bin/activate  # On macOS/Linux
+# Or on Windows: .venv\Scripts\activate
+
+# Install prs-dataviz
+uv pip install "prs-dataviz @ git+https://github.com/Shakes-tzd/prs-dataviz.git"
+```
+
+**Traditional venv approach:**
+
+```bash
+# Create virtual environment
+python -m venv .venv
+source .venv/bin/activate  # On macOS/Linux
+# Or on Windows: .venv\Scripts\activate
+
+# Install prs-dataviz
+pip install "git+https://github.com/Shakes-tzd/prs-dataviz.git"
+```
+
+### Development Installation
+
+For contributors or if you want to modify the code:
 
 ```bash
 # Clone the repository
 git clone https://github.com/Shakes-tzd/prs-dataviz.git
 cd prs-dataviz
 
-# Install with uv
-uv pip install -e .
-
-# Or install with pip
-pip install -e .
-
-# With development dependencies
+# Install in editable mode with development dependencies
 uv pip install -e ".[dev]"
+
+# Or with pip
+pip install -e ".[dev]"
 ```
 
-### Use in PEP 723 Scripts
+**Development dependencies include:**
+- `pytest` - Testing framework
+- `black` - Code formatter
+- `ruff` - Fast Python linter
+- `marimo` - Interactive notebooks
 
-For standalone scripts with inline dependencies (works with `uv run`):
+### PEP 723 Inline Script Dependencies
+
+For standalone scripts that manage their own dependencies (no installation needed):
 
 ```python
+#!/usr/bin/env python3
 # /// script
 # requires-python = ">=3.11"
 # dependencies = [
 #     "prs-dataviz @ git+https://github.com/Shakes-tzd/prs-dataviz.git",
+#     "matplotlib>=3.7",
+#     "numpy>=1.24",
 # ]
 # ///
 
-from prs_dataviz import apply_prs_style
-# ... your code ...
+from prs_dataviz import apply_prs_style, save_prs_figure
+import matplotlib.pyplot as plt
+
+# Your code here...
+```
+
+**Run with uv:**
+```bash
+uv run your_script.py
+```
+
+This automatically creates a temporary environment with all dependencies!
+
+### Verify Installation
+
+Check that prs-dataviz is installed correctly:
+
+```python
+# Test import
+python -c "import prs_dataviz; print(f'prs-dataviz version: {prs_dataviz.__version__}')"
+
+# Test basic functionality
+python -c "from prs_dataviz import apply_prs_style, CLINICAL_BLUE; print('✓ Installation successful')"
+```
+
+**Create a test figure:**
+
+```python
+from prs_dataviz import apply_prs_style, save_prs_figure
+import matplotlib.pyplot as plt
+
+apply_prs_style()
+fig, ax = plt.subplots()
+ax.plot([1, 2, 3], [1, 4, 2])
+ax.set_xlabel("X-axis")
+ax.set_ylabel("Y-axis")
+save_prs_figure(fig, "test_figure.tiff", dpi=300, width_inches=5.0)
+print("✓ Test figure created: test_figure.tiff")
+```
+
+### Troubleshooting
+
+**Import errors:**
+```bash
+# Make sure you're in the correct virtual environment
+which python  # Should point to .venv/bin/python
+
+# Reinstall if needed
+pip uninstall prs-dataviz
+pip install "git+https://github.com/Shakes-tzd/prs-dataviz.git"
+```
+
+**Git installation issues:**
+```bash
+# Ensure git is installed
+git --version
+
+# If git is missing, install it:
+# macOS: brew install git
+# Ubuntu/Debian: sudo apt-get install git
+# Windows: Download from https://git-scm.com/
+```
+
+**Module not found errors:**
+```python
+# Check if dependencies are installed
+python -c "import matplotlib, numpy, PIL; print('✓ All dependencies found')"
+
+# If missing, install dependencies manually:
+pip install matplotlib numpy pillow
+```
+
+**Permission errors:**
+```bash
+# Use --user flag if you don't have admin rights
+pip install --user "git+https://github.com/Shakes-tzd/prs-dataviz.git"
+```
+
+### Updating to Latest Version
+
+```bash
+# With uv
+uv pip install --upgrade "prs-dataviz @ git+https://github.com/Shakes-tzd/prs-dataviz.git"
+
+# With pip
+pip install --upgrade --force-reinstall "git+https://github.com/Shakes-tzd/prs-dataviz.git"
 ```
 
 ## Quick Start
