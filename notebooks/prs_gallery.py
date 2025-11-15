@@ -71,6 +71,52 @@ def _(mo):
 
 
 @app.cell
+def _(mo):
+    mo.md(r"""
+    ## 📦 Installation
+
+    Install directly from GitHub using either `uv` (recommended) or `pip`:
+
+    ### Quick Install
+
+    ```bash
+    # Using uv (10-100x faster)
+    uv pip install "prs-dataviz @ git+https://github.com/Shakes-tzd/prs-dataviz.git"
+
+    # Or using pip
+    pip install "git+https://github.com/Shakes-tzd/prs-dataviz.git"
+    ```
+
+    ### With Virtual Environment
+
+    ```bash
+    # Create virtual environment
+    uv venv  # or: python -m venv .venv
+    source .venv/bin/activate  # On macOS/Linux
+    # .venv\Scripts\activate  # On Windows
+
+    # Install package
+    uv pip install "prs-dataviz @ git+https://github.com/Shakes-tzd/prs-dataviz.git"
+    ```
+
+    ### For Development
+
+    ```bash
+    git clone https://github.com/Shakes-tzd/prs-dataviz.git
+    cd prs-dataviz
+    uv pip install -e ".[dev]"
+    ```
+
+    **Prerequisites**: Python 3.11+, Git
+
+    📚 **Full Documentation**: [GitHub Repository](https://github.com/Shakes-tzd/prs-dataviz)
+
+    ---
+    """)
+    return
+
+
+@app.cell
 def _():
     import matplotlib.pyplot as plt
     import numpy as np
