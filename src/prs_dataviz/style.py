@@ -120,12 +120,12 @@ def apply_prs_style(
         # Ticks
         "xtick.bottom": show_spines,
         "xtick.top": False,
-        "xtick.labelsize": font_size - 1,
+        "xtick.labelsize": font_size,  # Increased from font_size - 1 for accessibility
         "xtick.color": "#333333",
         "xtick.direction": "out",
         "ytick.left": show_spines,
         "ytick.right": False,
-        "ytick.labelsize": font_size - 1,
+        "ytick.labelsize": font_size,  # Increased from font_size - 1 for accessibility
         "ytick.color": "#333333",
         "ytick.direction": "out",
 
@@ -139,7 +139,7 @@ def apply_prs_style(
         "legend.framealpha": 1.0,
         "legend.facecolor": "white",
         "legend.edgecolor": "#CCCCCC",
-        "legend.fontsize": font_size - 1,
+        "legend.fontsize": font_size,  # Increased from font_size - 1 for accessibility
         "legend.title_fontsize": font_size,
         "legend.borderpad": 0.5,
         "legend.labelspacing": 0.5,
@@ -231,6 +231,139 @@ def format_comparison_plot(
     lines = ax.get_lines()
     for i, line in enumerate(lines[:len(colors)]):
         line.set_color(colors[i])
+
+
+def add_significance_indicator(
+    ax,
+    x: float,
+    y: float,
+    p_value: float = None,
+    symbol: str = "*",
+    bracket: bool = False,
+    x_start: float = None,
+    x_end: float = None,
+    show_p_value: bool = True,
+    **kwargs
+) -> None:
+    """
+    Add statistical significance indicator to a plot following publication best practices.
+
+    Scientific Standard: Show EITHER symbols (*,**,***) OR exact p-values, not both.
+    Based on research from matplotlib best practices, starbars package design,
+    and scientific publication conventions.
+
+    Parameters
+    ----------
+    ax : matplotlib.axes.Axes
+        Axes to add indicator to.
+    x : float
+        X-coordinate for indicator (center of bracket if bracket=True).
+    y : float
+        Y-coordinate for bracket base (should be above compared bars).
+    p_value : float, optional
+        P-value for auto-formatting. Used to show exact value if show_p_value=True.
+    symbol : str, default "*"
+        Significance symbol (e.g., "*", "**", "***", "ns").
+        Ignored if show_p_value=True.
+    bracket : bool, default False
+        Whether to draw a horizontal bracket line with vertical tips.
+    x_start : float, optional
+        Starting x-coordinate for bracket (required if bracket=True).
+    x_end : float, optional
+        Ending x-coordinate for bracket (required if bracket=True).
+    show_p_value : bool, default True
+        If True, show exact p-value instead of symbol.
+        If False, show symbol only.
+        Recommendation: p-values for precision (default), symbols for visual clarity.
+    **kwargs
+        Additional formatting:
+        - text_fontsize: Annotation text size (default: 14pt symbols, 10pt p-values)
+        - text_color: Annotation color (default: #2C5F87)
+        - line_width: Bracket line width (default: 1.5)
+        - tip_length: Bracket tip length as % of y-range (default: 0.01 = 1%)
+        - text_offset: Bracket-to-text spacing as % of y-range (default: 0.01 = 1%)
+
+    Examples
+    --------
+    Symbol only (standard):
+    >>> fig, ax = plt.subplots()
+    >>> ax.bar(['Control', 'Treatment'], [65, 88])
+    >>> add_significance_indicator(ax, x=0.5, y=90, symbol="**",
+    ...                            bracket=True, x_start=0, x_end=1)
+
+    Exact p-value (when precision needed):
+    >>> add_significance_indicator(ax, x=0.5, y=90, p_value=0.023,
+    ...                            bracket=True, x_start=0, x_end=1,
+    ...                            show_p_value=True)
+
+    Auto-select symbol:
+    >>> from prs_dataviz import get_significance_symbol
+    >>> symbol = get_significance_symbol(0.008)  # Returns "**"
+    >>> add_significance_indicator(ax, x=0.5, y=90, symbol=symbol,
+    ...                            bracket=True, x_start=0, x_end=1)
+    """
+    import matplotlib.pyplot as plt
+
+    # Get current font size from rcParams
+    base_fontsize = plt.rcParams.get('font.size', 10)
+
+    # Calculate y-range for relative positioning
+    y_range = ax.get_ylim()[1] - ax.get_ylim()[0]
+
+    # Spacing parameters (research-based defaults: 2-3% is standard)
+    tip_length_pct = kwargs.get('tip_length', 0.01)  # 1% for bracket tips
+    text_offset_pct = kwargs.get('text_offset', 0.01)  # 1% between bracket and text (compact)
+
+    # Convert to absolute values
+    tip_length = tip_length_pct * y_range
+    text_offset = text_offset_pct * y_range
+
+    # Draw bracket if requested
+    if bracket and x_start is not None and x_end is not None:
+        # Bold, prominent brackets for clear visibility (especially with gridlines)
+        line_width = kwargs.get('line_width', 2.5)  # Bold brackets (was 1.5, then 2.0)
+        bracket_color = kwargs.get('bracket_color', '#000000')  # Solid black
+
+        # Clean bracket structure: [x1, x1, x2, x2] and [y1, y2, y2, y1]
+        # Creates: tip down → horizontal → tip down
+        bracket_x = [x_start, x_start, x_end, x_end]
+        bracket_y = [y - tip_length, y, y, y - tip_length]
+
+        ax.plot(bracket_x, bracket_y, color=bracket_color,
+               linewidth=line_width, solid_capstyle='butt', zorder=100)
+
+    # Determine display: symbol OR p-value (not both)
+    if show_p_value and p_value is not None:
+        # Show exact p-value
+        if p_value < 0.001:
+            display_text = "p < 0.001"
+        elif p_value < 0.01:
+            display_text = f"p = {p_value:.3f}"
+        else:
+            display_text = f"p = {p_value:.2f}"
+
+        text_fontsize = kwargs.get('text_fontsize', base_fontsize)  # 10pt
+        text_color = kwargs.get('text_color', '#666')
+        text_weight = 'normal'
+    else:
+        # Show symbol (standard practice)
+        display_text = symbol
+        text_fontsize = kwargs.get('text_fontsize', base_fontsize + 4)  # 14pt
+        text_color = kwargs.get('text_color', '#2C5F87')
+        text_weight = 'bold'
+
+    # Position text above bracket
+    text_y = y + text_offset
+
+    # Add annotation
+    ax.text(
+        x, text_y, display_text,
+        fontsize=text_fontsize,
+        ha='center',
+        va='bottom',
+        color=text_color,
+        fontweight=text_weight
+    )
 
 
 def add_scale_bar(

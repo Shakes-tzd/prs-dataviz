@@ -57,6 +57,7 @@ from .style import (
     apply_prs_style,
     format_statistical_plot,
     format_comparison_plot,
+    add_significance_indicator,
     add_scale_bar,
     prs_legend,
 )
@@ -79,6 +80,21 @@ from .layout import (
     create_results_panel,
 )
 
+# Helper exports
+from .helpers import (
+    auto_extend_ylim,
+    get_data_max_in_range,
+    auto_calculate_ylim_for_annotations,
+    auto_position_brackets,
+    calculate_bracket_position,
+    add_comparison_bars,
+    add_multiple_comparisons,
+    create_comparison_plot,
+    create_time_series_plot,
+    get_significance_symbol,
+    calculate_optimal_ylim,
+)
+
 __all__ = [
     # Palettes
     "CLINICAL_BLUE",
@@ -99,6 +115,7 @@ __all__ = [
     "apply_prs_style",
     "format_statistical_plot",
     "format_comparison_plot",
+    "add_significance_indicator",
     "add_scale_bar",
     "prs_legend",
     # Export
@@ -113,4 +130,16 @@ __all__ = [
     "create_multi_view_figure",
     "create_time_series_figure",
     "create_results_panel",
+    # Helpers
+    "auto_extend_ylim",
+    "get_data_max_in_range",
+    "auto_calculate_ylim_for_annotations",
+    "auto_position_brackets",
+    "calculate_bracket_position",
+    "add_comparison_bars",
+    "add_multiple_comparisons",
+    "create_comparison_plot",
+    "create_time_series_plot",
+    "get_significance_symbol",
+    "calculate_optimal_ylim",
 ]

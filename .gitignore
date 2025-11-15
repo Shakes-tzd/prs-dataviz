@@ -70,3 +70,6 @@ uv.lock
 # Test artifacts
 test_gallery_*.py
 test_gallery_report.md
+test_typography.py
+test_significance_placement.py
+test_*.png
