@@ -119,26 +119,121 @@ Based on data structure from Phase 1:
 
 **Constraints to satisfy**:
 1. **Readability**: Legend must not obscure data
-2. **Proximity**: Legend close to relevant data
-3. **Simplicity**: Prefer direct labeling when possible
+2. **Proximity**: Legend near relevant data (but not interfering)
+3. **Journal standards**: Below or to the right (scientific convention)
+4. **Simplicity**: Prefer direct labeling when possible
 
-**Decision rules**:
+**Research-Based Decision Tree**:
+
+Based on [legend placement standards](https://xdgov.github.io/data-design-standards/components/legends) and [visualization best practices](https://www.maplibrary.org/9773/7-legend-placement-techniques-for-clarity/):
 
 ```python
-# Pseudo-code for legend decisions
-if n_labels <= 3 and labels_short:
-    # Simple case - use best position (matplotlib avoids data)
-    position = "best"
+# IMPROVED: Journal-standard legend placement heuristics
+
+# Step 1: Can we use direct labeling? (Best option - no legend needed)
+if n_series <= 3 and space_allows:
+    # Direct label bars/lines instead of legend
+    use_direct_labeling = True
+    # Add text annotations directly on plot elements
+    # Example: ax.text(x, y, label) on each bar/line
+
+# Step 2: Determine optimal position based on plot characteristics
 elif plot_type == "bar" and no_title:
-    # PRS often has no titles (in caption instead)
-    position = "top-smart"  # Auto-calculates columns and x-position
-elif plot_type == "time_series" and data_dense:
-    position = "outside"  # Keep right side clear
+    # Bar charts without titles (PRS common pattern)
+    # Standard: Legend above plot, horizontal layout
+    position = "top-smart"  # Auto-calculates columns, centers properly
+
+elif plot_type == "bar" and has_title:
+    # Bar chart with title
+    # Standard: Below plot (doesn't interrupt visual flow)
+    position = "below"  # Or use figlegend below axes
+
+elif plot_type == "line" and n_series <= 4:
+    # Line plots with few series
+    # Standard: Upper right or outside right (parallel to y-axis)
+    if data_dense_in_upper_right:
+        position = "outside"  # Right side, doesn't occlude data
+    else:
+        position = "upper right"  # Inside, empty corner
+
+elif plot_type == "line" and n_series > 4:
+    # Line plots with many series
+    # Standard: Outside right (avoids visual clutter)
+    position = "outside"
+
+elif plot_type == "scatter":
+    # Scatter plots - data usually spread throughout
+    # Standard: Outside right (safest, never overlaps points)
+    position = "outside"
+
 else:
-    position = "best"  # Matplotlib's algorithm finds optimal spot
+    # Default for other plot types
+    # Preference order: outside > below > upper right > best
+    if figure_width_allows:
+        position = "outside"  # Safest, journal standard
+    else:
+        position = "upper right"  # Common journal convention
+
+# Step 3: Check if chosen position works in visual inspection phase
+# If legend obscures data after generation → refine to different position
 ```
 
-**Key Insight**: Let `prs_legend()` auto-calculate `ncol` based on label length—don't hard-code.
+**Key Changes from Previous Approach**:
+- ❌ **AVOID** `position="best"` - slow and non-standard for journals
+- ✅ **PREFER** `position="outside"` - scientific publication standard
+- ✅ **PREFER** `position="top-smart"` for bar charts without titles
+- ✅ **PREFER** direct labeling when possible (eliminates legend entirely)
+- ✅ **ALWAYS** verify in Phase 4 visual inspection
+
+**Why "outside" is Better for Scientific Figures**:
+1. Never obscures data (critical for journals)
+2. Standard practice in scientific publications
+3. Better for readers with visual impairments
+4. Easier to reference while reading text
+5. Professional appearance
+
+**Implementation Examples**:
+
+```python
+# Example 1: Bar chart without title (common in PRS)
+prs_legend(ax, position="top-smart", fontsize=12)
+# Auto-calculates ncol, centers horizontally
+
+# Example 2: Line plot with outside legend
+prs_legend(ax, position="outside", fontsize=12)
+# Places legend to right, outside plot area
+
+# Example 3: Direct labeling (best - no legend!)
+# For simple bar charts with few categories
+for i, (bar, label) in enumerate(zip(bars, labels)):
+    height = bar.get_height()
+    ax.text(bar.get_x() + bar.get_width()/2, height + 1,
+            label, ha='center', va='bottom', fontsize=10, fontweight='bold')
+# Result: No legend needed - labels on data directly
+
+# Example 4: Below plot for titled bar charts
+# Use figure-level legend below axes
+fig.legend(loc='outside lower center', bbox_to_anchor=(0.5, -0.05),
+           ncol=len(labels), fontsize=12)
+```
+
+**Decision Matrix**:
+
+| Plot Type | Series | Title | Data Density | Recommended Position |
+|-----------|--------|-------|--------------|---------------------|
+| Bar | 2-4 | No | Any | `"top-smart"` |
+| Bar | 2-4 | Yes | Any | `"below"` or `"outside"` |
+| Line | ≤4 | Any | Sparse upper-right | `"upper right"` |
+| Line | ≤4 | Any | Dense | `"outside"` |
+| Line | >4 | Any | Any | `"outside"` |
+| Scatter | Any | Any | Any | `"outside"` |
+| Box plot | ≤5 | Any | Any | `"upper right"` or `"outside"` |
+
+**Key Insight**:
+- **First choice**: Direct labeling (no legend)
+- **Second choice**: `"outside"` (journal standard)
+- **Third choice**: `"top-smart"` for bar charts
+- **Avoid**: `"best"` (not optimized for publication standards)
 
 #### Step 2.4: Font Size Strategy
 
@@ -240,10 +335,18 @@ ax.tick_params(axis="y", labelsize=fontsize)
 ax.set_ylim(0, max_data_value * 1.15)  # 15% headroom
 
 # ============================================================================
-# 5. Add Legend (Auto-Optimized)
+# 5. Add Legend (Journal-Standard Placement)
 # ============================================================================
-# Let prs_legend make decisions based on plot characteristics
-prs_legend(ax, position="best", fontsize=fontsize)
+# IMPORTANT: Choose position based on plot type and Phase 2 decisions
+
+# For bar charts without titles (PRS common pattern):
+prs_legend(ax, position="top-smart", fontsize=fontsize)
+
+# OR for line/scatter plots (journal standard):
+# prs_legend(ax, position="outside", fontsize=fontsize)
+
+# OR for simple plots with ≤3 series, consider direct labeling:
+# (No legend needed - label data directly on plot elements)
 
 # ============================================================================
 # 6. Grid for Data Reading
