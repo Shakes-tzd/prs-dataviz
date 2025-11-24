@@ -11,17 +11,18 @@ Reference: PRS Figure Guidelines
 https://journals.lww.com/plasreconsurg/pages/informationforauthors.aspx
 """
 
-import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
-from matplotlib.figure import Figure
-import numpy as np
-from typing import Optional, Literal, Tuple
-from PIL import Image
+from typing import Literal, Tuple
 
+import matplotlib.gridspec as gridspec
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.figure import Figure
+from PIL import Image
 
 # ============================================================================
 # Before/After Comparison Layouts
 # ============================================================================
+
 
 def create_before_after_figure(
     before_image: np.ndarray | str,
@@ -29,7 +30,7 @@ def create_before_after_figure(
     labels: tuple[str, str] = ("Before", "After"),
     figsize: tuple[float, float] | None = None,
     title: str | None = None,
-    **kwargs
+    **kwargs,
 ) -> Tuple[Figure, tuple]:
     """
     Create a side-by-side before/after comparison figure.
@@ -97,32 +98,38 @@ def create_before_after_figure(
     ax2.imshow(after_image)
 
     # Remove axes
-    ax1.axis('off')
-    ax2.axis('off')
+    ax1.axis("off")
+    ax2.axis("off")
 
     # Add labels
-    label_size = kwargs.get('label_size', 12)
-    label_weight = kwargs.get('label_weight', 'bold')
-    label_y = kwargs.get('label_y', -0.05)
+    label_size = kwargs.get("label_size", 12)
+    label_weight = kwargs.get("label_weight", "bold")
+    label_y = kwargs.get("label_y", -0.05)
 
     ax1.text(
-        0.5, label_y, labels[0],
+        0.5,
+        label_y,
+        labels[0],
         transform=ax1.transAxes,
-        ha='center', va='top',
+        ha="center",
+        va="top",
         fontsize=label_size,
         fontweight=label_weight,
     )
     ax2.text(
-        0.5, label_y, labels[1],
+        0.5,
+        label_y,
+        labels[1],
         transform=ax2.transAxes,
-        ha='center', va='top',
+        ha="center",
+        va="top",
         fontsize=label_size,
         fontweight=label_weight,
     )
 
     # Add overall title if provided
     if title:
-        fig.suptitle(title, fontsize=14, fontweight='bold', y=0.98)
+        fig.suptitle(title, fontsize=14, fontweight="bold", y=0.98)
 
     # Adjust layout
     plt.tight_layout()
@@ -136,7 +143,7 @@ def create_multi_view_figure(
     labels: dict[str, str] | None = None,
     figsize: tuple[float, float] | None = None,
     title: str | None = None,
-    **kwargs
+    **kwargs,
 ) -> Tuple[Figure, dict]:
     """
     Create a multi-view figure (e.g., frontal, lateral, oblique views).
@@ -200,7 +207,9 @@ def create_multi_view_figure(
     if n_images == 1:
         axes_array = [axes_array]
     else:
-        axes_array = axes_array.flatten() if isinstance(axes_array, np.ndarray) else [axes_array]
+        axes_array = (
+            axes_array.flatten() if isinstance(axes_array, np.ndarray) else [axes_array]
+        )
 
     # Load and display images
     axes_dict = {}
@@ -216,17 +225,20 @@ def create_multi_view_figure(
 
         # Display
         ax.imshow(img)
-        ax.axis('off')
+        ax.axis("off")
 
         # Add label
         label = labels.get(view_name, view_name) if labels else view_name
-        label_size = kwargs.get('label_size', 11)
-        label_weight = kwargs.get('label_weight', 'bold')
+        label_size = kwargs.get("label_size", 11)
+        label_weight = kwargs.get("label_weight", "bold")
 
         ax.text(
-            0.5, -0.05, label,
+            0.5,
+            -0.05,
+            label,
             transform=ax.transAxes,
-            ha='center', va='top',
+            ha="center",
+            va="top",
             fontsize=label_size,
             fontweight=label_weight,
         )
@@ -235,11 +247,11 @@ def create_multi_view_figure(
 
     # Hide unused axes
     for idx in range(n_images, len(axes_array)):
-        axes_array[idx].axis('off')
+        axes_array[idx].axis("off")
 
     # Add overall title
     if title:
-        fig.suptitle(title, fontsize=14, fontweight='bold', y=0.98)
+        fig.suptitle(title, fontsize=14, fontweight="bold", y=0.98)
 
     plt.tight_layout()
 
@@ -250,13 +262,14 @@ def create_multi_view_figure(
 # Time Series / Progression Layouts
 # ============================================================================
 
+
 def create_time_series_figure(
     images: dict[str, np.ndarray | str],
     time_labels: dict[str, str] | None = None,
     figsize: tuple[float, float] | None = None,
     title: str | None = None,
     show_timeline: bool = True,
-    **kwargs
+    **kwargs,
 ) -> Tuple[Figure, dict]:
     """
     Create a time-series figure showing progression (e.g., healing progression).
@@ -327,17 +340,20 @@ def create_time_series_figure(
 
         # Display
         ax.imshow(img)
-        ax.axis('off')
+        ax.axis("off")
 
         # Add label
         label = time_labels.get(time_point, time_point) if time_labels else time_point
-        label_size = kwargs.get('label_size', 11)
-        label_weight = kwargs.get('label_weight', 'bold')
+        label_size = kwargs.get("label_size", 11)
+        label_weight = kwargs.get("label_weight", "bold")
 
         ax.text(
-            0.5, -0.05, label,
+            0.5,
+            -0.05,
+            label,
             transform=ax.transAxes,
-            ha='center', va='top',
+            ha="center",
+            va="top",
             fontsize=label_size,
             fontweight=label_weight,
         )
@@ -347,20 +363,20 @@ def create_time_series_figure(
     # Add timeline if requested
     if show_timeline:
         ax_timeline = fig.add_subplot(gs[1, :])
-        ax_timeline.plot([0, 1], [0.5, 0.5], 'k-', linewidth=2)
+        ax_timeline.plot([0, 1], [0.5, 0.5], "k-", linewidth=2)
 
         # Add time point markers
         for idx in range(n_images):
             x_pos = idx / (n_images - 1) if n_images > 1 else 0.5
-            ax_timeline.plot(x_pos, 0.5, 'ko', markersize=8)
+            ax_timeline.plot(x_pos, 0.5, "ko", markersize=8)
 
         ax_timeline.set_xlim(-0.05, 1.05)
         ax_timeline.set_ylim(0, 1)
-        ax_timeline.axis('off')
+        ax_timeline.axis("off")
 
     # Add overall title
     if title:
-        fig.suptitle(title, fontsize=14, fontweight='bold', y=0.98)
+        fig.suptitle(title, fontsize=14, fontweight="bold", y=0.98)
 
     plt.tight_layout()
 
@@ -370,6 +386,7 @@ def create_time_series_figure(
 # ============================================================================
 # Statistical Figure Layouts
 # ============================================================================
+
 
 def create_results_panel(
     plot_data: dict,
@@ -408,7 +425,7 @@ def create_results_panel(
     >>> fig, axes = create_results_panel(plot_data, layout="1x2")
     """
     # Parse layout
-    nrows, ncols = map(int, layout.split('x'))
+    nrows, ncols = map(int, layout.split("x"))
 
     # Create figure
     if figsize is None:
@@ -432,11 +449,13 @@ def create_results_panel(
 
         # Add panel label
         ax.text(
-            -0.1, 1.05, label,
+            -0.1,
+            1.05,
+            label,
             transform=ax.transAxes,
             fontsize=12,
-            fontweight='bold',
-            va='bottom',
+            fontweight="bold",
+            va="bottom",
         )
 
     # Hide unused axes
@@ -444,11 +463,11 @@ def create_results_panel(
         for col in range(ncols):
             idx = row * ncols + col
             if idx >= len(panel_labels):
-                axes_array[row, col].axis('off')
+                axes_array[row, col].axis("off")
 
     # Add overall title
     if title:
-        fig.suptitle(title, fontsize=14, fontweight='bold', y=0.98)
+        fig.suptitle(title, fontsize=14, fontweight="bold", y=0.98)
 
     plt.tight_layout()
 

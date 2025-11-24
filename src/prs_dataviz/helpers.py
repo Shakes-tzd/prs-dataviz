@@ -9,10 +9,13 @@ Key Features:
 - Automatic stacking of multiple comparisons
 - Works with any dataset without manual adjustments
 """
-import numpy as np
+
+from typing import Dict, List, Optional, Tuple
+
 import matplotlib.pyplot as plt
-from typing import List, Tuple, Optional, Dict, Any
-from .palettes import COMPARISON, CLINICAL_DATA
+import numpy as np
+
+from .palettes import CLINICAL_DATA, COMPARISON
 from .style import add_significance_indicator
 
 
@@ -109,7 +112,9 @@ def get_data_max_in_range(ax, x_start: float = None, x_end: float = None) -> flo
         offsets = collection.get_offsets()
         if len(offsets) > 0:
             for x, y in offsets:
-                in_range = (x_start is None and x_end is None) or (x_start <= x <= x_end)
+                in_range = (x_start is None and x_end is None) or (
+                    x_start <= x <= x_end
+                )
                 if in_range:
                     if not np.isnan(y):
                         data_max = max(data_max, y)
@@ -121,9 +126,12 @@ def get_data_max_in_range(ax, x_start: float = None, x_end: float = None) -> flo
     return data_max
 
 
-def auto_calculate_ylim_for_annotations(ax, n_comparisons: int = 1,
-                                        base_extension: float = 0.12,
-                                        per_comparison: float = 0.08) -> Tuple[float, float]:
+def auto_calculate_ylim_for_annotations(
+    ax,
+    n_comparisons: int = 1,
+    base_extension: float = 0.12,
+    per_comparison: float = 0.08,
+) -> Tuple[float, float]:
     """
     Automatically calculate optimal y-axis limits with space for annotations.
 
@@ -163,12 +171,14 @@ def auto_calculate_ylim_for_annotations(ax, n_comparisons: int = 1,
 
     # Calculate headroom as PERCENTAGE OF DATA RANGE (not y-axis range)
     # Spacing provides clear visual separation without excessive whitespace
-    base_offset = 0.05      # 5% of data range above tallest bar (compact clearance)
-    stack_spacing = 0.08    # 8% of data range between brackets
-    text_spacing = 0.02     # 2% of data range for text height (compact but readable)
+    base_offset = 0.05  # 5% of data range above tallest bar (compact clearance)
+    stack_spacing = 0.08  # 8% of data range between brackets
+    text_spacing = 0.02  # 2% of data range for text height (compact but readable)
 
     # Calculate total headroom in ABSOLUTE units (data coordinates)
-    total_headroom = (base_offset + (n_comparisons - 1) * stack_spacing + text_spacing) * data_range
+    total_headroom = (
+        base_offset + (n_comparisons - 1) * stack_spacing + text_spacing
+    ) * data_range
 
     # Simple addition - no circular math!
     ymin = data_min
@@ -180,9 +190,12 @@ def auto_calculate_ylim_for_annotations(ax, n_comparisons: int = 1,
     return (ymin, ymax)
 
 
-def auto_position_brackets(ax, comparisons: List[Tuple[float, float]],
-                          base_offset: float = 0.05,
-                          stack_spacing: float = 0.08) -> List[float]:
+def auto_position_brackets(
+    ax,
+    comparisons: List[Tuple[float, float]],
+    base_offset: float = 0.05,
+    stack_spacing: float = 0.08,
+) -> List[float]:
     """
     Automatically calculate y-positions for multiple stacked brackets.
 
@@ -223,9 +236,9 @@ def auto_position_brackets(ax, comparisons: List[Tuple[float, float]],
     data_range = overall_data_max - data_min
 
     # Sort by span (wider brackets should be higher to avoid crossing)
-    sorted_comps = sorted(enumerate(comparisons),
-                         key=lambda x: abs(x[1][1] - x[1][0]),
-                         reverse=True)
+    sorted_comps = sorted(
+        enumerate(comparisons), key=lambda x: abs(x[1][1] - x[1][0]), reverse=True
+    )
 
     for level, (original_idx, (x_start, x_end)) in enumerate(sorted_comps):
         # Find max data in this comparison range
@@ -234,7 +247,11 @@ def auto_position_brackets(ax, comparisons: List[Tuple[float, float]],
         # Calculate bracket position based on DATA RANGE (not y-axis range)
         # First bracket: data_max + base_offset% of data_range
         # Subsequent brackets: stack above with spacing% of data_range
-        bracket_y = data_max_in_range + (base_offset * data_range) + (level * stack_spacing * data_range)
+        bracket_y = (
+            data_max_in_range
+            + (base_offset * data_range)
+            + (level * stack_spacing * data_range)
+        )
 
         y_positions.append((original_idx, bracket_y))
 
@@ -243,8 +260,9 @@ def auto_position_brackets(ax, comparisons: List[Tuple[float, float]],
     return [y for _, y in y_positions]
 
 
-def calculate_bracket_position(ax, bar_positions, bar_indices,
-                               offset_pct: float = 0.08):
+def calculate_bracket_position(
+    ax, bar_positions, bar_indices, offset_pct: float = 0.08
+):
     """
     Calculate optimal bracket position for significance indicators.
 
@@ -296,10 +314,10 @@ def calculate_bracket_position(ax, bar_positions, bar_indices,
     bracket_y = data_max + (y_range * offset_pct)
 
     return {
-        'x': (x_start + x_end) / 2,
-        'y': bracket_y,
-        'x_start': x_start,
-        'x_end': x_end,
+        "x": (x_start + x_end) / 2,
+        "y": bracket_y,
+        "x_start": x_start,
+        "x_end": x_end,
     }
 
 
@@ -309,7 +327,7 @@ def add_comparison_bars(
     categories: List[str],
     colors: Optional[List[str]] = None,
     width: float = 0.35,
-    **kwargs
+    **kwargs,
 ):
     """
     Create grouped comparison bars with automatic color assignment.
@@ -348,25 +366,30 @@ def add_comparison_bars(
     # Default colors from COMPARISON palette
     if colors is None:
         color_map = {
-            'Control': COMPARISON['Control'],
-            'Treatment': COMPARISON['Treatment'],
-            'Before': COMPARISON['Before'],
-            'After': COMPARISON['After'],
+            "Control": COMPARISON["Control"],
+            "Treatment": COMPARISON["Treatment"],
+            "Before": COMPARISON["Before"],
+            "After": COMPARISON["After"],
         }
-        colors = [color_map.get(g, CLINICAL_DATA['Primary']) for g in groups]
+        colors = [color_map.get(g, CLINICAL_DATA["Primary"]) for g in groups]
 
     # Calculate positions
     x = np.arange(n_categories)
-    offsets = np.linspace(-(n_groups - 1) * width / 2,
-                         (n_groups - 1) * width / 2,
-                         n_groups)
+    offsets = np.linspace(
+        -(n_groups - 1) * width / 2, (n_groups - 1) * width / 2, n_groups
+    )
 
     # Plot bars
     bar_containers = []
     for i, (group, offset) in enumerate(zip(groups, offsets)):
-        bars = ax.bar(x + offset, data[group], width,
-                     label=group, color=colors[i],
-                     alpha=kwargs.get('alpha', 0.8))
+        bars = ax.bar(
+            x + offset,
+            data[group],
+            width,
+            label=group,
+            color=colors[i],
+            alpha=kwargs.get("alpha", 0.8),
+        )
         bar_containers.append(bars)
 
     ax.set_xticks(x)
@@ -435,7 +458,7 @@ def add_multiple_comparisons(
             p_value=p_val,  # Show p-value (default behavior)
             bracket=True,
             x_start=x_positions[idx1],
-            x_end=x_positions[idx2]
+            x_end=x_positions[idx2],
         )
 
 
@@ -447,7 +470,7 @@ def create_comparison_plot(
     title: Optional[str] = None,
     comparisons: Optional[List[Tuple[int, int, float]]] = None,
     figsize: Tuple[float, float] = (10, 6),
-    **kwargs
+    **kwargs,
 ) -> Tuple[plt.Figure, plt.Axes]:
     """
     Create a complete comparison bar plot with significance indicators.
@@ -501,13 +524,13 @@ def create_comparison_plot(
     from .style import apply_prs_style
 
     # Apply PRS styling
-    apply_prs_style(cycle="comparison", show_grid=kwargs.get('show_grid', True))
+    apply_prs_style(cycle="comparison", show_grid=kwargs.get("show_grid", True))
 
     # Create figure
     fig, ax = plt.subplots(figsize=figsize)
 
     # Add bars
-    bar_width = kwargs.get('bar_width', 0.35)
+    bar_width = kwargs.get("bar_width", 0.35)
     x, bars, groups = add_comparison_bars(ax, data, categories, width=bar_width)
 
     # Labels
@@ -540,7 +563,7 @@ def create_time_series_plot(
     title: Optional[str] = None,
     confidence_intervals: Optional[Dict[str, np.ndarray]] = None,
     figsize: Tuple[float, float] = (10, 6),
-    **kwargs
+    **kwargs,
 ) -> Tuple[plt.Figure, plt.Axes]:
     """
     Create a time series plot with optional confidence intervals.
@@ -595,31 +618,37 @@ def create_time_series_plot(
     # Colors
     groups = list(data.keys())
     color_map = {
-        'Control': COMPARISON['Control'],
-        'Treatment': COMPARISON['Treatment'],
-        'Before': COMPARISON['Before'],
-        'After': COMPARISON['After'],
+        "Control": COMPARISON["Control"],
+        "Treatment": COMPARISON["Treatment"],
+        "Before": COMPARISON["Before"],
+        "After": COMPARISON["After"],
     }
 
     # Plot lines
-    markers = kwargs.get('markers', ['o', 's', '^', 'D'])
-    linewidth = kwargs.get('linewidth', 2.5)
-    markersize = kwargs.get('markersize', 7)
+    markers = kwargs.get("markers", ["o", "s", "^", "D"])
+    linewidth = kwargs.get("linewidth", 2.5)
+    markersize = kwargs.get("markersize", 7)
 
     for i, group in enumerate(groups):
-        color = color_map.get(group, CLINICAL_DATA['Primary'])
+        color = color_map.get(group, CLINICAL_DATA["Primary"])
         marker = markers[i % len(markers)]
 
-        ax.plot(time, data[group], marker=marker, linewidth=linewidth,
-               markersize=markersize, label=group, color=color)
+        ax.plot(
+            time,
+            data[group],
+            marker=marker,
+            linewidth=linewidth,
+            markersize=markersize,
+            label=group,
+            color=color,
+        )
 
         # Add confidence intervals if provided
         if confidence_intervals and group in confidence_intervals:
             ci = confidence_intervals[group]
-            ax.fill_between(time,
-                           data[group] - ci,
-                           data[group] + ci,
-                           alpha=0.2, color=color)
+            ax.fill_between(
+                time, data[group] - ci, data[group] + ci, alpha=0.2, color=color
+            )
 
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
@@ -666,8 +695,9 @@ def get_significance_symbol(p_value: float) -> str:
         return "ns"
 
 
-def calculate_optimal_ylim(ax, data_max: Optional[float] = None,
-                          n_comparisons: int = 1) -> Tuple[float, float]:
+def calculate_optimal_ylim(
+    ax, data_max: Optional[float] = None, n_comparisons: int = 1
+) -> Tuple[float, float]:
     """
     Calculate optimal y-axis limits with space for significance indicators.
 

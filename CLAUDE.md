@@ -216,6 +216,88 @@ Always credit Cara Thompson when discussing the design system:
 
 ## Common Workflows
 
+### ⭐ Adding Examples to the Gallery (IMPORTANT)
+
+**CRITICAL: ALL examples must be added to `notebooks/prs_gallery.py`**
+
+The gallery is the **central, authoritative** location for all prs-dataviz examples. Follow this workflow:
+
+1. **Create the example function** in `notebooks/prs_gallery.py`:
+   ```python
+   @app.cell
+   def _(CLINICAL_DATA, apply_prs_style, plt):
+       def create_example_N():
+           """Brief description of what this example demonstrates."""
+           apply_prs_style(cycle="clinical")
+
+           # Your example code here
+           fig, ax = plt.subplots(figsize=(10, 6))
+           # ... plotting code ...
+
+           plt.tight_layout()
+           return fig
+
+       exampleN_fig = create_example_N()
+       return (exampleN_fig,)
+   ```
+
+2. **Add explanatory documentation cell**:
+   ```python
+   @app.cell
+   def _(exampleN_fig, mo):
+       mo.vstack([
+           exampleN_fig,
+           mo.md("""
+           **PRS-DataViz Functions Used:**
+           1. `function_name()` - Description
+           2. ...
+
+           **Use Cases:** When to use this pattern
+           """)
+       ])
+       return
+   ```
+
+3. **Number examples sequentially**: Example 1, 2, 3... 8, 9, etc.
+
+4. **Add section header** before the example:
+   ```python
+   @app.cell
+   def _(mo):
+       mo.md(r"""
+       ---
+
+       ### N. Example Title
+
+       Brief description of what this demonstrates.
+       """)
+       return
+   ```
+
+5. **Import required functions** in the imports cell at the top
+
+6. **Run the gallery** to verify:
+   ```bash
+   uv run marimo edit notebooks/prs_gallery.py
+   ```
+
+**Why the gallery is essential:**
+- ✅ **Interactive**: Users can see live examples in their browser
+- ✅ **Comprehensive**: All features demonstrated in one place
+- ✅ **Documented**: Inline explanations with code
+- ✅ **Accessible**: Viewable without running Python
+- ✅ **Version-controlled**: Examples stay in sync with code
+
+**Do NOT:**
+- ❌ Create standalone example scripts in `examples/` folder (deprecated)
+- ❌ Only document in README without gallery example
+- ❌ Skip adding to gallery "for later"
+
+**Optional supplementary materials:**
+- Standalone scripts in `examples/` for CLI demonstrations
+- README snippets for quick reference
+- But the gallery MUST be the primary source
+
 ### Creating a New Color Palette
 
 1. Define colors in `palettes.py` with CMYK values
@@ -223,7 +305,8 @@ Always credit Cara Thompson when discussing the design system:
 3. Verify WCAG contrast ratios
 4. Add to appropriate cycle
 5. Export via `__init__.py`
-6. Document in README
+6. **Add example to `notebooks/prs_gallery.py`** (REQUIRED)
+7. Document in README
 
 ### Adding a New Layout Function
 
@@ -232,7 +315,16 @@ Always credit Cara Thompson when discussing the design system:
 3. Add comprehensive docstring with examples
 4. Handle both image arrays and file paths
 5. Export via `__init__.py`
-6. Add example to `example.py`
+6. **Add example to `notebooks/prs_gallery.py`** (REQUIRED)
+7. Update README if needed
+
+### Adding a New Style Function
+
+1. Implement in `style.py`
+2. Add comprehensive docstring with parameter descriptions
+3. Export via `__init__.py`
+4. **Add example to `notebooks/prs_gallery.py`** (REQUIRED)
+5. Document usage patterns
 
 ### Validating PRS Compliance
 
@@ -294,10 +386,36 @@ Dev:
 ## File Conventions
 
 - Source code: `src/prs_dataviz/`
-- Examples: `example.py`
+- **Primary examples**: `notebooks/prs_gallery.py` (marimo interactive gallery) ⭐ **REQUIRED**
+- Supplementary examples: `examples/*.py` (optional CLI demos)
 - Tests: `tests/` (pytest)
 - Documentation: `README.md`, `CLAUDE.md`
 - Notebooks: `notebooks/` (marimo format)
+
+### Gallery Structure (`notebooks/prs_gallery.py`)
+
+The gallery follows this pattern:
+```
+1. Header & Installation Instructions
+2. Color Palette Swatches
+3. Example 1: Basic Statistical Bar Chart
+4. Example 2: Line Graph with Confidence Intervals
+5. Example 3: Before/After Comparison
+6. Example 4: Box Plot Distribution
+7. Example 5: Demographic Stacked Bar Chart
+8. Example 6: Multi-Panel Grouped Bar Charts
+9. Example 7: Categorical Stacked Bar Chart
+10. Example 8: Smart Legend Positioning
+... (continue adding examples sequentially)
+11. PRS Compliance Features
+12. Accessibility Features
+13. Resources & Summary
+```
+
+**Each example cell includes:**
+1. Markdown header cell (title + description)
+2. Code cell with encapsulated `create_exampleN()` function
+3. Documentation cell with `mo.vstack([fig, mo.md(...)])`
 
 ## Special Considerations
 
@@ -367,3 +485,20 @@ Potential improvements:
 - **Accessibility**: Always maintain Cara Thompson's methodology
 - **Professional quality**: Medical/surgical context requires highest standards
 - **No modifications**: Respect PRS guidelines on photo modification
+- **Examples**: **ALL examples MUST be added to `notebooks/prs_gallery.py`** (non-negotiable)
+
+### Development Workflow for Claude
+
+When adding new features or functions:
+
+1. **Implement the feature** in appropriate module (`style.py`, `layout.py`, etc.)
+2. **Export** via `__init__.py`
+3. **Add to gallery** (REQUIRED): Create example in `notebooks/prs_gallery.py`
+4. **Test**: Run gallery to verify example works
+5. **Document**: Update README if needed
+
+**Gallery-First Approach:**
+- The gallery is the user's primary interface to learn the package
+- Every function should have at least one gallery example
+- Examples should be progressive (simple → complex)
+- Always include inline documentation explaining what functions do

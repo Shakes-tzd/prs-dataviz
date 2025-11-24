@@ -60,6 +60,7 @@ from .style import (
     add_significance_indicator,
     add_scale_bar,
     prs_legend,
+    set_axis_fontsize,
 )
 
 # Export exports
@@ -118,6 +119,7 @@ __all__ = [
     "add_significance_indicator",
     "add_scale_bar",
     "prs_legend",
+    "set_axis_fontsize",
     # Export
     "save_prs_figure",
     "save_multi_panel_figure",

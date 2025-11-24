@@ -30,6 +30,7 @@ dependencies = [
     "pillow>=10.0",
     "colorspacious>=1.1.2",
     "marimo>=0.17.7",
+    "pandas>=2.3.3",
 ]
 
 [project.optional-dependencies]

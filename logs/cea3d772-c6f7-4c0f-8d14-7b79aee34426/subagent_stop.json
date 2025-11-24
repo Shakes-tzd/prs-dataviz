@@ -1,0 +1,12 @@
+[
+  {
+    "session_id": "cea3d772-c6f7-4c0f-8d14-7b79aee34426",
+    "transcript_path": "/Users/shakes/.claude/projects/-Users-shakes-DevProjects-prs-dataviz/cea3d772-c6f7-4c0f-8d14-7b79aee34426.jsonl",
+    "cwd": "/Users/shakes/DevProjects/prs-dataviz",
+    "permission_mode": "default",
+    "hook_event_name": "SubagentStop",
+    "stop_hook_active": false,
+    "agent_id": "f46b189c",
+    "agent_transcript_path": "/Users/shakes/.claude/projects/-Users-shakes-DevProjects-prs-dataviz/agent-f46b189c.jsonl"
+  }
+]

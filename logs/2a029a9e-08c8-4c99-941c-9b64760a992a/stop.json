@@ -1,0 +1,10 @@
+[
+  {
+    "session_id": "2a029a9e-08c8-4c99-941c-9b64760a992a",
+    "transcript_path": "/Users/shakes/.claude/projects/-Users-shakes-DevProjects-prs-dataviz/2a029a9e-08c8-4c99-941c-9b64760a992a.jsonl",
+    "cwd": "/Users/shakes/DevProjects/prs-dataviz",
+    "permission_mode": "default",
+    "hook_event_name": "Stop",
+    "stop_hook_active": false
+  }
+]

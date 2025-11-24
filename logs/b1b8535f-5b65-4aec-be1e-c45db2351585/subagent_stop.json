@@ -1,0 +1,22 @@
+[
+  {
+    "session_id": "b1b8535f-5b65-4aec-be1e-c45db2351585",
+    "transcript_path": "/Users/shakes/.claude/projects/-Users-shakes-DevProjects-prs-dataviz/b1b8535f-5b65-4aec-be1e-c45db2351585.jsonl",
+    "cwd": "/Users/shakes/DevProjects/prs-dataviz",
+    "permission_mode": "default",
+    "hook_event_name": "SubagentStop",
+    "stop_hook_active": false,
+    "agent_id": "ee536b22",
+    "agent_transcript_path": "/Users/shakes/.claude/projects/-Users-shakes-DevProjects-prs-dataviz/agent-ee536b22.jsonl"
+  },
+  {
+    "session_id": "b1b8535f-5b65-4aec-be1e-c45db2351585",
+    "transcript_path": "/Users/shakes/.claude/projects/-Users-shakes-DevProjects-prs-dataviz/b1b8535f-5b65-4aec-be1e-c45db2351585.jsonl",
+    "cwd": "/Users/shakes/DevProjects/prs-dataviz",
+    "permission_mode": "default",
+    "hook_event_name": "SubagentStop",
+    "stop_hook_active": false,
+    "agent_id": "cceaea7d",
+    "agent_transcript_path": "/Users/shakes/.claude/projects/-Users-shakes-DevProjects-prs-dataviz/agent-cceaea7d.jsonl"
+  }
+]

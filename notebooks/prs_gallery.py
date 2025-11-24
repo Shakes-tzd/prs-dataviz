@@ -5,7 +5,9 @@
 #     "matplotlib>=3.7",
 #     "numpy>=1.24",
 #     "pillow>=10.0",
-#     "marimo>=0.17.7",
+#     "marimo>=0.17.0",
+#     "pyzmq",
+#     "pandas",
 # ]
 # ///
 
@@ -28,14 +30,13 @@ Reference:
 
 import marimo
 
-__generated_with = "0.17.8"
+__generated_with = "0.18.0"
 app = marimo.App(width="full")
 
 
 @app.cell
 def _():
     import marimo as mo
-
     return (mo,)
 
 
@@ -120,6 +121,7 @@ def _(mo):
 def _():
     import matplotlib.pyplot as plt
     import numpy as np
+    import pandas as pd
 
     # Import from the actual prs-dataviz package
     from prs_dataviz import (
@@ -128,22 +130,22 @@ def _():
         COMPARISON,
         STATISTICAL,
         TISSUE_TONE,
-        add_multiple_comparisons,
         add_significance_indicator,
         apply_prs_style,
+        prs_legend,
     )
-
     return (
         CLINICAL_BLUE,
         CLINICAL_DATA,
         COMPARISON,
         STATISTICAL,
         TISSUE_TONE,
-        add_multiple_comparisons,
         add_significance_indicator,
         apply_prs_style,
         np,
+        pd,
         plt,
+        prs_legend,
     )
 
 
@@ -325,87 +327,75 @@ def _(mo):
 
 
 @app.cell
-def _(COMPARISON, add_significance_indicator, apply_prs_style, np, plt):
+def _(
+    COMPARISON,
+    add_significance_indicator,
+    apply_prs_style,
+    np,
+    plt,
+    prs_legend,
+):
     # ========================================================================
     # Example 1: Statistical Bar Chart
     # ========================================================================
-    # Demonstrates: apply_prs_style(), COMPARISON palette, add_significance_indicator()
-    #
-    # PRS-DATAVIZ FUNCTIONS USED:
-    # 1. apply_prs_style(cycle="comparison", show_grid=True)
-    #    - Sets global matplotlib styling with comparison color palette
-    #    - Typography: 10pt base, accessible font hierarchy
-    #    - Grid enabled for data reading
-    #
-    # 2. COMPARISON["Control"] and COMPARISON["Treatment"]
-    #    - CMYK-safe, colorblind-friendly comparison colors
-    #    - Control: #7A8A99 (muted steel blue)
-    #    - Treatment: #9B7357 (warm brown)
-    #
-    # 3. add_significance_indicator(ax, x, y, p_value, bracket, x_start, x_end)
-    #    - PRS-compliant statistical annotation
-    #    - Improved spacing: 5% base offset, 1% text offset (67% more compact)
-    #    - Automatic typography (10pt p-value, 16pt symbol)
-    #    - Optional bracket for group comparisons
-    #    - Use add_multiple_comparisons() for automatic positioning
-    # ========================================================================
+    def create_example1():
+        """Create statistical bar chart with significance indicator."""
+        apply_prs_style(cycle="comparison", show_grid=True)
 
-    apply_prs_style(cycle="comparison", show_grid=True)
+        fig, ax = plt.subplots(figsize=(8, 5))
 
-    fig1, ax1 = plt.subplots(figsize=(8, 5))
+        # Sample data: Treatment efficacy over time
+        categories = ["Pre-operative", "3 Months", "6 Months", "12 Months"]
+        control = [65, 68, 70, 72]
+        treatment = [65, 75, 82, 88]
 
-    # Sample data: Treatment efficacy over time
-    categories = ["Pre-operative", "3 Months", "6 Months", "12 Months"]
-    control = [65, 68, 70, 72]
-    treatment = [65, 75, 82, 88]
+        x = np.arange(len(categories))
+        width = 0.35
 
-    x = np.arange(len(categories))
-    width = 0.35
+        # Explicit color assignment using COMPARISON palette
+        ax.bar(
+            x - width / 2,
+            control,
+            width,
+            label="Control",
+            color=COMPARISON["Control"],
+            alpha=0.8,
+        )
+        ax.bar(
+            x + width / 2,
+            treatment,
+            width,
+            label="Treatment",
+            color=COMPARISON["Treatment"],
+            alpha=0.8,
+        )
 
-    # Explicit color assignment using COMPARISON palette
-    bars1 = ax1.bar(
-        x - width / 2,
-        control,
-        width,
-        label="Control",
-        color=COMPARISON["Control"],  # Using prs_dataviz palette
-        alpha=0.8,
-    )
-    bars2 = ax1.bar(
-        x + width / 2,
-        treatment,
-        width,
-        label="Treatment",
-        color=COMPARISON["Treatment"],  # Using prs_dataviz palette
-        alpha=0.8,
-    )
+        # Labels
+        ax.set_ylabel("Patient Satisfaction Score (%)")
+        ax.set_xlabel("Follow-up Time")
+        ax.set_title("Treatment Efficacy Over Time", fontweight="bold", pad=15)
+        ax.set_xticks(x)
+        ax.set_xticklabels(categories)
+        ax.set_ylim(0, 105)
+        prs_legend(ax, position="best")  # Smart positioning - avoids data overlap
+        ax.yaxis.grid(True, linestyle="--", alpha=0.3)
+        ax.set_axisbelow(True)
 
-    # Labels (font sizes from apply_prs_style defaults)
-    ax1.set_ylabel("Patient Satisfaction Score (%)")
-    ax1.set_xlabel("Follow-up Time")
-    ax1.set_title("Treatment Efficacy Over Time", fontweight="bold", pad=15)
-    ax1.set_xticks(x)
-    ax1.set_xticklabels(categories)
-    ax1.set_ylim(0, 105)  # Extended for significance indicator
-    ax1.legend(frameon=True, loc="best")  # Auto-optimal placement
-    ax1.yaxis.grid(True, linestyle="--", alpha=0.3)
-    ax1.set_axisbelow(True)
+        # Statistical significance
+        add_significance_indicator(
+            ax,
+            x=2.5,
+            y=92,
+            p_value=0.05,
+            bracket=True,
+            x_start=2.5 - width / 2,
+            x_end=2.5 + width / 2,
+        )
 
-    # Statistical significance using prs_dataviz function
-    # Bracket style for clear group comparison
-    add_significance_indicator(
-        ax1,
-        x=2.5,                    # Center between bars at 12 months
-        y=92,                     # Height of bracket
-        p_value=0.05,             # Significance level
-        bracket=True,             # Show bracket line
-        x_start=2.5 - width/2,    # Start of treatment bar
-        x_end=2.5 + width/2,      # End of treatment bar
-    )
+        plt.tight_layout()
+        return fig
 
-    plt.tight_layout()
-
-    example1_fig = fig1
+    example1_fig = create_example1()
     return (example1_fig,)
 
 
@@ -454,65 +444,68 @@ def _(mo):
 
 
 @app.cell
-def _(COMPARISON, apply_prs_style, np, plt):
+def _(COMPARISON, apply_prs_style, np, plt, prs_legend):
     # Example 2: Line graph with confidence intervals
-    apply_prs_style(cycle="comparison")
+    def create_example2():
+        """Create line graph with confidence intervals."""
+        apply_prs_style(cycle="comparison")
 
-    fig2, ax2 = plt.subplots(figsize=(8, 5))
+        fig, ax = plt.subplots(figsize=(8, 5))
 
-    months = np.array([0, 1, 3, 6, 12, 18, 24])
-    treatment_mean = np.array([50, 62, 72, 80, 85, 87, 88])
-    treatment_std = np.array([8, 7, 6, 5, 4, 4, 4])
-    control_mean = np.array([50, 54, 58, 62, 65, 67, 68])
-    control_std = np.array([8, 8, 7, 7, 6, 6, 6])
+        months = np.array([0, 1, 3, 6, 12, 18, 24])
+        treatment_mean = np.array([50, 62, 72, 80, 85, 87, 88])
+        treatment_std = np.array([8, 7, 6, 5, 4, 4, 4])
+        control_mean = np.array([50, 54, 58, 62, 65, 67, 68])
+        control_std = np.array([8, 8, 7, 7, 6, 6, 6])
 
-    # Plot lines with comparison palette colors
-    ax2.plot(
-        months,
-        treatment_mean,
-        marker="o",
-        linewidth=2.5,
-        label="Treatment",
-        markersize=7,
-        color=COMPARISON["Treatment"],
-    )
-    ax2.plot(
-        months,
-        control_mean,
-        marker="s",
-        linewidth=2.5,
-        label="Control",
-        markersize=7,
-        color=COMPARISON["Control"],
-    )
+        # Plot lines with comparison palette colors
+        ax.plot(
+            months,
+            treatment_mean,
+            marker="o",
+            linewidth=2.5,
+            label="Treatment",
+            markersize=7,
+            color=COMPARISON["Treatment"],
+        )
+        ax.plot(
+            months,
+            control_mean,
+            marker="s",
+            linewidth=2.5,
+            label="Control",
+            markersize=7,
+            color=COMPARISON["Control"],
+        )
 
-    # Add confidence intervals (±1 SD) with matching colors
-    ax2.fill_between(
-        months,
-        treatment_mean - treatment_std,
-        treatment_mean + treatment_std,
-        alpha=0.2,
-        color=COMPARISON["Treatment"],
-    )
-    ax2.fill_between(
-        months,
-        control_mean - control_std,
-        control_mean + control_std,
-        alpha=0.2,
-        color=COMPARISON["Control"],
-    )
+        # Add confidence intervals
+        ax.fill_between(
+            months,
+            treatment_mean - treatment_std,
+            treatment_mean + treatment_std,
+            alpha=0.2,
+            color=COMPARISON["Treatment"],
+        )
+        ax.fill_between(
+            months,
+            control_mean - control_std,
+            control_mean + control_std,
+            alpha=0.2,
+            color=COMPARISON["Control"],
+        )
 
-    ax2.set_xlabel("Time Since Surgery (months)")
-    ax2.set_ylabel("Recovery Score")
-    ax2.set_title("Long-term Recovery Trajectories", fontweight="bold", pad=15)
-    ax2.legend(frameon=True, loc="lower right")
-    ax2.set_ylim(35, 100)
-    ax2.grid(True, alpha=0.3, linestyle="--")
-    ax2.set_axisbelow(True)
+        ax.set_xlabel("Time Since Surgery (months)")
+        ax.set_ylabel("Recovery Score")
+        ax.set_title("Long-term Recovery Trajectories", fontweight="bold", pad=15)
+        prs_legend(ax, position="lower right")
+        ax.set_ylim(35, 100)
+        ax.grid(True, alpha=0.3, linestyle="--")
+        ax.set_axisbelow(True)
 
-    plt.tight_layout()
+        plt.tight_layout()
+        return fig
 
-    example2_fig = fig2
+    example2_fig = create_example2()
     return (example2_fig,)
 
 
@@ -547,71 +540,74 @@ def _(mo):
 
 
 @app.cell
-def _(COMPARISON, apply_prs_style, np, plt):
+def _(COMPARISON, apply_prs_style, np, plt, prs_legend):
     # Example 3: Before/After scatter comparison
-    apply_prs_style(cycle="comparison")
+    def create_example3():
+        """Create before/after scatter comparison."""
+        apply_prs_style(cycle="comparison")
 
-    fig3, (ax3a, ax3b) = plt.subplots(1, 2, figsize=(12, 5))
+        fig, (ax_before, ax_after) = plt.subplots(1, 2, figsize=(12, 5))
 
-    # Generate mock measurement data
-    np.random.seed(42)
-    n_patients = 30
-    before_values = np.random.normal(45, 10, n_patients)
-    after_values = before_values + np.random.normal(25, 5, n_patients)
+        # Generate mock measurement data
+        np.random.seed(42)
+        n_patients = 30
+        before_values = np.random.normal(45, 10, n_patients)
+        after_values = before_values + np.random.normal(25, 5, n_patients)
 
-    # Before
-    ax3a.scatter(
-        range(n_patients),
-        before_values,
-        s=60,
-        alpha=0.7,
-        edgecolors="black",
-        linewidth=0.5,
-        color=COMPARISON["Before"],
-    )
-    ax3a.axhline(
-        y=np.mean(before_values),
-        color="#333",
-        linestyle="--",
-        linewidth=1.5,
-        alpha=0.7,
-        label=f"Mean: {np.mean(before_values):.1f}",
-    )
-    ax3a.set_ylabel("Measurement (mm)")
-    ax3a.set_xlabel("Patient ID")
-    ax3a.set_title("Preoperative", fontweight="bold", pad=10)
-    ax3a.set_ylim(20, 90)
-    ax3a.legend(frameon=True, loc="upper right")
-    ax3a.grid(True, alpha=0.3, axis="y")
+        # Before
+        ax_before.scatter(
+            range(n_patients),
+            before_values,
+            s=60,
+            alpha=0.7,
+            edgecolors="black",
+            linewidth=0.5,
+            color=COMPARISON["Before"],
+        )
+        ax_before.axhline(
+            y=np.mean(before_values),
+            color="#333",
+            linestyle="--",
+            linewidth=1.5,
+            alpha=0.7,
+            label=f"Mean: {np.mean(before_values):.1f}",
+        )
+        ax_before.set_ylabel("Measurement (mm)")
+        ax_before.set_xlabel("Patient ID")
+        ax_before.set_title("Preoperative", fontweight="bold", pad=10)
+        ax_before.set_ylim(20, 90)
+        prs_legend(ax_before, position="upper right")
+        ax_before.grid(True, alpha=0.3, axis="y")
 
-    # After
-    ax3b.scatter(
-        range(n_patients),
-        after_values,
-        s=60,
-        alpha=0.7,
-        edgecolors="black",
-        linewidth=0.5,
-        color=COMPARISON["After"],
-    )
-    ax3b.axhline(
-        y=np.mean(after_values),
-        color="#333",
-        linestyle="--",
-        linewidth=1.5,
-        alpha=0.7,
-        label=f"Mean: {np.mean(after_values):.1f}",
-    )
-    ax3b.set_ylabel("Measurement (mm)")
-    ax3b.set_xlabel("Patient ID")
-    ax3b.set_title("6 Months Postoperative", fontweight="bold", pad=10)
-    ax3b.set_ylim(20, 90)
-    ax3b.legend(frameon=True, loc="upper right")
-    ax3b.grid(True, alpha=0.3, axis="y")
+        # After
+        ax_after.scatter(
+            range(n_patients),
+            after_values,
+            s=60,
+            alpha=0.7,
+            edgecolors="black",
+            linewidth=0.5,
+            color=COMPARISON["After"],
+        )
+        ax_after.axhline(
+            y=np.mean(after_values),
+            color="#333",
+            linestyle="--",
+            linewidth=1.5,
+            alpha=0.7,
+            label=f"Mean: {np.mean(after_values):.1f}",
+        )
+        ax_after.set_ylabel("Measurement (mm)")
+        ax_after.set_xlabel("Patient ID")
+        ax_after.set_title("6 Months Postoperative", fontweight="bold", pad=10)
+        ax_after.set_ylim(20, 90)
+        prs_legend(ax_after, position="upper right")
+        ax_after.grid(True, alpha=0.3, axis="y")
 
-    plt.tight_layout()
+        plt.tight_layout()
+        return fig
 
-    example3_fig = fig3
+    example3_fig = create_example3()
     return (example3_fig,)
 
 
@@ -648,66 +644,68 @@ def _(mo):
 @app.cell
 def _(CLINICAL_DATA, add_significance_indicator, apply_prs_style, np, plt):
     # Example 4: Box plots
-    apply_prs_style(cycle="clinical")
+    def create_example4():
+        """Create box plot comparison with significance."""
+        apply_prs_style(cycle="clinical")
 
-    fig4, ax4 = plt.subplots(figsize=(8, 6))
+        fig, ax = plt.subplots(figsize=(8, 6))
 
-    # Generate sample data
-    np.random.seed(123)
-    group_a = np.random.normal(68, 12, 50)
-    group_b = np.random.normal(78, 10, 50)
-    group_c = np.random.normal(85, 8, 50)
+        # Generate sample data
+        np.random.seed(123)
+        group_a = np.random.normal(68, 12, 50)
+        group_b = np.random.normal(78, 10, 50)
+        group_c = np.random.normal(85, 8, 50)
 
-    data_groups = [group_a, group_b, group_c]
-    positions = [1, 2, 3]
+        data_groups = [group_a, group_b, group_c]
+        positions = [1, 2, 3]
 
-    bp = ax4.boxplot(
-        data_groups,
-        positions=positions,
-        widths=0.6,
-        patch_artist=True,
-        showfliers=True,
-        boxprops=dict(linewidth=1.5),
-        medianprops=dict(color="black", linewidth=2),
-        whiskerprops=dict(linewidth=1.5),
-        capprops=dict(linewidth=1.5),
-    )
+        bp = ax.boxplot(
+            data_groups,
+            positions=positions,
+            widths=0.6,
+            patch_artist=True,
+            showfliers=True,
+            boxprops={"linewidth": 1.5},
+            medianprops={"color": "black", "linewidth": 2},
+            whiskerprops={"linewidth": 1.5},
+            capprops={"linewidth": 1.5},
+        )
 
-    # Color boxes
-    colors = [
-        CLINICAL_DATA["Primary"],
-        CLINICAL_DATA["Secondary"],
-        CLINICAL_DATA["Tertiary"],
-    ]
-    for patch, color in zip(bp["boxes"], colors):
-        patch.set_facecolor(color)
-        patch.set_alpha(0.7)
+        # Color boxes
+        colors = [
+            CLINICAL_DATA["Primary"],
+            CLINICAL_DATA["Secondary"],
+            CLINICAL_DATA["Tertiary"],
+        ]
+        for patch, color in zip(bp["boxes"], colors):
+            patch.set_facecolor(color)
+            patch.set_alpha(0.7)
 
-    ax4.set_xlabel("Treatment Group")
-    ax4.set_ylabel("Outcome Score")
-    ax4.set_title("Treatment Group Comparison", fontweight="bold", pad=15)
-    ax4.set_xticks(positions)
-    ax4.set_xticklabels(["Group A\n(n=50)", "Group B\n(n=50)", "Group C\n(n=50)"])
-    ax4.set_ylim(35, 110)
-    ax4.yaxis.grid(True, linestyle="--", alpha=0.3)
-    ax4.set_axisbelow(True)
+        ax.set_xlabel("Treatment Group")
+        ax.set_ylabel("Outcome Score")
+        ax.set_title("Treatment Group Comparison", fontweight="bold", pad=15)
+        ax.set_xticks(positions)
+        ax.set_xticklabels(["Group A\n(n=50)", "Group B\n(n=50)", "Group C\n(n=50)"])
+        ax.set_ylim(35, 110)
+        ax.yaxis.grid(True, linestyle="--", alpha=0.3)
+        ax.set_axisbelow(True)
 
-    # Statistical significance between Group A and Group B
-    # Using prs_dataviz function with bracket for clear comparison
-    add_significance_indicator(
-        ax4,
-        x=1.5,           # Midpoint between groups
-        y=100,           # Height of bracket
-        p_value=0.01,    # Highly significant
-        symbol="**",     # Two asterisks for p < 0.01
-        bracket=True,    # Show comparison bracket
-        x_start=1,       # Group A position
-        x_end=2,         # Group B position
-    )
+        # Statistical significance
+        add_significance_indicator(
+            ax,
+            x=1.5,
+            y=100,
+            p_value=0.01,
+            symbol="**",
+            bracket=True,
+            x_start=1,
+            x_end=2,
+        )
 
-    plt.tight_layout()
+        plt.tight_layout()
+        return fig
 
-    example4_fig = fig4
+    example4_fig = create_example4()
     return (example4_fig,)
 
 
@@ -966,6 +964,589 @@ def _(mo):
     )
     ```
     """)
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md(r"""
+    ---
+
+    ### 5. Demographic Stacked Bar Chart
+
+    Professional horizontal stacked bar charts for demographic and clinical characteristics analysis.
+    """)
+    return
+
+
+@app.cell
+def _(CLINICAL_DATA, apply_prs_style, pd, plt):
+    from matplotlib.ticker import FuncFormatter
+
+    # Example 5: Demographic Stacked Bar Chart
+    def create_example5():
+        """Create demographic stacked bar chart."""
+        apply_prs_style(cycle="clinical")
+
+        # Sample demographic data
+        categories = [
+            "Sex",
+            "Race",
+            "Cleft Type",
+            "Syndromic Status",
+            "English Proficiency",
+            "Prenatal Diagnosis",
+            "Adoption Status",
+            "Migrant Status",
+        ]
+
+        data = {
+            "Male": [55, 0, 0, 0, 0, 0, 0, 0],
+            "Female": [45, 0, 0, 0, 0, 0, 0, 0],
+            "White": [0, 42, 0, 0, 0, 0, 0, 0],
+            "Non-White": [0, 58, 0, 0, 0, 0, 0, 0],
+            "CL/P": [0, 0, 65, 0, 0, 0, 0, 0],
+            "CP": [0, 0, 35, 0, 0, 0, 0, 0],
+            "Syndromic": [0, 0, 0, 18, 0, 0, 0, 0],
+            "Non-syndromic": [0, 0, 0, 82, 0, 0, 0, 0],
+            "Yes": [0, 0, 0, 0, 88, 12, 8, 4],
+            "No": [0, 0, 0, 0, 12, 88, 92, 96],
+        }
+
+        df = pd.DataFrame(data, index=categories)
+
+        fig, ax = plt.subplots(figsize=(14, 8))
+
+        # Define colors
+        color_map = {
+            "Male": CLINICAL_DATA["Primary"],
+            "Female": CLINICAL_DATA["Secondary"],
+            "White": CLINICAL_DATA["Primary"],
+            "Non-White": CLINICAL_DATA["Secondary"],
+            "CL/P": CLINICAL_DATA["Primary"],
+            "CP": CLINICAL_DATA["Secondary"],
+            "Syndromic": CLINICAL_DATA["Primary"],
+            "Non-syndromic": CLINICAL_DATA["Secondary"],
+            "Yes": CLINICAL_DATA["Primary"],
+            "No": CLINICAL_DATA["Secondary"],
+        }
+
+        # Plot
+        df.plot(
+            kind="barh",
+            stacked=True,
+            color=[color_map[col] for col in df.columns],
+            ax=ax,
+            width=0.7,
+            edgecolor="none",
+        )
+
+        # Styling
+        ax.spines["left"].set_visible(True)
+        ax.spines["bottom"].set_linewidth(2)
+        ax.spines["bottom"].set_color("#333")
+        ax.set_xlabel("Percentage of Patients (%)", fontsize=14, fontweight="bold")
+        ax.set_ylabel("")
+        ax.set_xlim(0, 100)
+        ax.set_xticks([0, 50, 100])
+        ax.xaxis.set_major_formatter(FuncFormatter(lambda x, _: f"{x:.0f}%"))
+        ax.tick_params(axis="both", labelsize=12, colors="#333")
+
+        for label in ax.get_yticklabels():
+            label.set_fontweight("bold")
+
+        # Add value annotations
+        for i, (_, row) in enumerate(df.iterrows()):
+            x_offset = 0
+            for col in df.columns:
+                val = row[col]
+                if val > 0:
+                    text_color = "#333" if val < 15 else "white"
+                    x_pos = x_offset + val + 3 if val < 15 else x_offset + val / 2
+                    ax.text(
+                        x_pos,
+                        i,
+                        f"{col}\n{val:.0f}%",
+                        va="center",
+                        ha="center",
+                        color=text_color,
+                        fontsize=11,
+                        fontweight="bold",
+                    )
+                    x_offset += val
+
+        ax.legend().set_visible(False)
+        ax.grid(False)
+        plt.title(
+            "Patient Demographics and Clinical Characteristics",
+            fontsize=16,
+            fontweight="bold",
+            pad=15,
+        )
+        plt.tight_layout()
+        return fig
+
+    example5_fig = create_example5()
+    return (example5_fig,)
+
+
+@app.cell
+def _(example5_fig, mo):
+    mo.vstack(
+        [
+            example5_fig,
+            mo.md("""
+    **PRS-DataViz Functions Used:**
+
+    1. **`apply_prs_style(cycle="clinical")`**
+       - Clinical data palette for professional medical contexts
+       - Clean typography and spacing
+
+    2. **`CLINICAL_DATA["Primary"]` & `CLINICAL_DATA["Secondary"]`**
+       - CMYK-safe color pairs for binary comparisons
+       - Colorblind-friendly palette
+       - Professional medical aesthetics
+
+    3. **Inline Annotations**
+       - Direct labeling reduces cognitive load
+       - Smart positioning (inside for large segments, outside for small)
+       - High contrast text for readability
+
+    **Use Cases:** Demographic analysis, clinical characteristics, categorical distributions
+    """),
+        ]
+    )
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md(r"""
+    ---
+
+    ### 6. Multi-Panel Grouped Bar Charts
+
+    Comparing outcomes across patient subgroups with professional grouped bar charts.
+    """)
+    return
+
+
+@app.cell
+def _(CLINICAL_DATA, COMPARISON, apply_prs_style, np, plt, prs_legend):
+    # Example 6: Multi-Panel Grouped Bar Charts
+    def create_example6():
+        """Create multi-panel grouped bar charts for outcome comparison."""
+        apply_prs_style(cycle="comparison")
+
+        # Define categories and data
+        categories = [
+            "30 Day\nComplications",
+            "Complications\nBefore Discharge",
+            "Growth\nDelay",
+            "Revision\nPerformed",
+            "Speech\nTherapy",
+            "Velopharyngeal\nInsufficiency",
+        ]
+
+        # Sample data
+        non_syndromic_adopted = [0, 3.12, 6.25, 31.25, 78.12, 15.62]
+        syndromic_adopted = [0, 0, 0, 0, 0, 0]
+        non_syndromic_not_adopted = [2, 3, 5, 1, 25, 8]
+        syndromic_not_adopted = [3, 4, 20, 2, 30, 12]
+
+        # Create figure with two subplots
+        fig, (ax_top, ax_bottom) = plt.subplots(2, 1, figsize=(14, 10))
+
+        # Colors
+        colors = {
+            "Non-syndromic": CLINICAL_DATA["Primary"],
+            "Syndromic": COMPARISON["Treatment"],
+        }
+
+        x_pos = np.arange(len(categories))
+        width = 0.35
+
+        # Helper function to plot grouped bars
+        def plot_grouped_bars(ax, non_syn_data, syn_data, ylabel):
+            for i, (group_type, data) in enumerate(
+                [("Non-syndromic", non_syn_data), ("Syndromic", syn_data)]
+            ):
+                ax.bar(
+                    x_pos + i * width - width / 2,
+                    data,
+                    width,
+                    label=group_type,
+                    color=colors[group_type],
+                    alpha=0.9,
+                    edgecolor="none",
+                )
+                # Annotations
+                for j, val in enumerate(data):
+                    if val > 0:
+                        ax.text(
+                            x_pos[j] + i * width - width / 2,
+                            val + 1.5,
+                            f"{val:.0f}",
+                            ha="center",
+                            va="bottom",
+                            fontsize=12,
+                            fontweight="bold",
+                            color="#333",
+                        )
+
+            ax.set_ylabel(ylabel, fontsize=14, fontweight="bold")
+            ax.set_xticks(x_pos)
+            ax.set_xticklabels(categories, fontsize=11, color="#333")
+            ax.tick_params(axis="y", labelsize=12, colors="#333")
+            ax.spines["top"].set_visible(False)
+            ax.spines["right"].set_visible(False)
+            ax.grid(False)
+            for label in ax.get_yticklabels():
+                label.set_fontweight("bold")
+
+        # Adopted subplot
+        plot_grouped_bars(
+            ax_top,
+            non_syndromic_adopted,
+            syndromic_adopted,
+            "Adopted\nNumber of Patients",
+        )
+        prs_legend(ax_top, position="top", ncol=2)
+
+        # Not adopted subplot
+        plot_grouped_bars(
+            ax_bottom,
+            non_syndromic_not_adopted,
+            syndromic_not_adopted,
+            "Not Adopted\nNumber of Patients",
+        )
+        ax_bottom.set_xlabel("")
+        # No legend on bottom subplot (shown on top)
+
+        plt.suptitle(
+            "Clinical Outcomes by Adoption Status and Syndrome",
+            fontsize=16,
+            fontweight="bold",
+            y=0.995,
+        )
+        plt.tight_layout()
+        return fig
+
+    example6_fig = create_example6()
+    return (example6_fig,)
+
+
+@app.cell
+def _(example6_fig, mo):
+    mo.vstack(
+        [
+            example6_fig,
+            mo.md("""
+    **PRS-DataViz Functions Used:**
+
+    1. **`apply_prs_style(cycle="comparison")`**
+       - Comparison palette for contrasting groups
+       - Professional subplot coordination
+
+    2. **Multi-Panel Layout**
+       - Consistent styling across subplots
+       - Shared x-axis for direct comparison
+       - Professional spacing with `tight_layout()`
+
+    3. **Grouped Bar Charts**
+       - CLINICAL_DATA and COMPARISON palettes
+       - Direct value annotations for clarity
+       - Clean, minimal design
+
+    **Key Features:**
+    - Synchronized x-axes for direct comparison
+    - Inline value labels reduce eye movement
+    - Professional color coordination across panels
+
+    **Use Cases:** Subgroup analysis, multi-cohort comparisons, stratified outcomes
+    """),
+        ]
+    )
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md(r"""
+    ---
+
+    ### 7. Categorical Stacked Bar Chart
+
+    Clean stacked bar charts for multi-category outcome analysis.
+    """)
+    return
+
+
+@app.cell
+def _(CLINICAL_DATA, COMPARISON, apply_prs_style, pd, plt, prs_legend):
+    # Example 7: Categorical Stacked Bar Chart
+    def create_example7():
+        """Create categorical stacked bar chart."""
+        apply_prs_style(cycle="clinical")
+
+        # Sample data
+        categories = ["Growth Delay", "Speech Therapy", "Prenatal Diagnosis", "Adopted"]
+
+        data = {
+            "Non-syndromic: No": [82, 15, 90, 95],
+            "Non-syndromic: Yes": [18, 85, 10, 5],
+            "Syndromic: No": [60, 50, 85, 100],
+            "Syndromic: Yes": [40, 50, 15, 0],
+        }
+
+        df = pd.DataFrame(data, index=categories)
+
+        fig, ax = plt.subplots(figsize=(14, 8))
+
+        # Define colors
+        colors = [
+            COMPARISON["Treatment"],
+            CLINICAL_DATA["Primary"],
+            CLINICAL_DATA["Secondary"],
+            CLINICAL_DATA["Tertiary"],
+        ]
+
+        # Plot
+        df.plot(
+            kind="barh", stacked=True, color=colors, ax=ax, width=0.7, edgecolor="none"
+        )
+
+        # Styling
+        ax.set_xlabel("")
+        ax.set_ylabel("")
+        ax.tick_params(axis="both", labelsize=14, colors="#333")
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        ax.spines["left"].set_visible(False)
+        ax.spines["bottom"].set_visible(False)
+
+        for label in ax.get_yticklabels():
+            label.set_fontweight("bold")
+
+        # Add value labels
+        for container in ax.containers:
+            labels = [f"{int(val)}" if val > 0 else "" for val in container.datavalues]
+            ax.bar_label(
+                container,
+                labels=labels,
+                label_type="center",
+                color="white",
+                fontsize=14,
+                fontweight="bold",
+            )
+
+        # Professional top legend with smart positioning
+        prs_legend(ax, position="top", ncol=2)
+
+        ax.grid(False)
+        # plt.title(
+        #     "Clinical Outcomes by Syndrome Status",
+        #     fontsize=16,
+        #     fontweight="bold",
+        #     pad=20,
+        # )
+        plt.tight_layout()
+        return fig
+
+    example7_fig = create_example7()
+    return (example7_fig,)
+
+
+@app.cell
+def _(example7_fig, mo):
+    mo.vstack(
+        [
+            example7_fig,
+            mo.md("""
+    **PRS-DataViz Functions Used:**
+
+    1. **`apply_prs_style(cycle="clinical")`**
+       - Professional clinical data styling
+       - Clean, minimal aesthetic
+
+    2. **CLINICAL_DATA & COMPARISON Palettes**
+       - Multi-category color coordination
+       - CMYK-safe, colorblind-friendly
+       - Semantic color use (treatment colors for outcomes)
+
+    3. **Automatic Value Labels**
+       - `ax.bar_label()` for clean inline annotation
+       - White text on colored backgrounds for contrast
+       - Only show non-zero values
+
+    **Key Features:**
+    - Stacked percentages show full distribution
+    - Direct labeling eliminates need for legend lookups
+    - Professional color coordination across categories
+
+    **Use Cases:** Multi-category outcomes, stratified analysis, percentage distributions
+    """),
+        ]
+    )
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md(r"""
+    ---
+
+    ### 8. Smart Legend Positioning
+
+    Automatic column calculation and intelligent positioning for professional legends.
+    """)
+    return
+
+
+@app.cell
+def _(CLINICAL_DATA, apply_prs_style, pd, plt, prs_legend):
+    # Example 8: Smart Legend with Auto-Column Calculation
+    def create_example8():
+        """Create smart legend example with auto-calculated columns."""
+        apply_prs_style(cycle="clinical")
+
+        # Sample data with varying label lengths
+        categories = ["Growth Delay", "Speech Therapy", "Prenatal Diagnosis", "Adopted"]
+
+        data_short = {
+            "Non-syndromic: No": [82, 15, 90, 95],
+            "Non-syndromic: Yes": [18, 85, 10, 5],
+            "Syndromic: No": [60, 50, 85, 100],
+            "Syndromic: Yes": [40, 50, 15, 0],
+        }
+
+        df = pd.DataFrame(data_short, index=categories)
+
+        fig, ax = plt.subplots(figsize=(14, 8))
+
+        # Define colors
+        colors = [
+            CLINICAL_DATA["Primary"],
+            CLINICAL_DATA["Secondary"],
+            CLINICAL_DATA["Tertiary"],
+            CLINICAL_DATA["Accent"],
+        ]
+
+        # Plot
+        df.plot(
+            kind="barh",
+            stacked=True,
+            color=colors,
+            ax=ax,
+            width=0.7,
+            edgecolor="none",
+        )
+
+        # Styling
+        ax.set_xlabel("")
+        ax.set_ylabel("")
+        ax.tick_params(axis="both", labelsize=14, colors="#333")
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        ax.spines["left"].set_visible(False)
+        ax.spines["bottom"].set_visible(False)
+
+        for label in ax.get_yticklabels():
+            label.set_fontweight("bold")
+
+        # Add value labels
+        for container in ax.containers:
+            labels = [f"{int(val)}" if val > 0 else "" for val in container.datavalues]
+            ax.bar_label(
+                container,
+                labels=labels,
+                label_type="center",
+                color="white",
+                fontsize=14,
+                fontweight="bold",
+            )
+
+        ax.grid(False)
+
+        # SMART LEGEND: Auto-calculates optimal columns based on label length
+        # For these short labels, it will automatically choose 2 columns
+        # and position at bbox_to_anchor=(0.35, 1.12)
+        prs_legend(ax, position="top-smart")
+
+        plt.tight_layout()
+        return fig
+
+    example8_fig = create_example8()
+    return (example8_fig,)
+
+
+@app.cell
+def _(example8_fig, mo):
+    mo.vstack(
+        [
+            example8_fig,
+            mo.md("""
+    **PRS-DataViz Smart Legend Features:**
+
+    1. **Auto-Calculates Columns** (based on label text length)
+       - Short labels (< 15 chars avg): 2-4 columns
+       - Medium labels (15-25 chars): 2-3 columns
+       - Long labels (> 25 chars): 1-2 columns
+       - Very long labels (> 40 chars): 1 column
+
+    2. **Auto-Detects Bar Charts** (applies prominent handles automatically)
+       - `markerscale=4` → 4× larger markers
+       - `handleheight=2` → Taller color boxes
+       - `handlelength=2` → Standard width
+       - Makes bar legends highly visible and professional
+
+    3. **Dynamic `bbox_to_anchor` Positioning**
+       - 1 column: `x=0.5` (centered)
+       - 2 columns: `x=0.35` (slightly left)
+       - 3 columns: `x=0.4` (balanced)
+       - 4+ columns: `x=0.45` (nearly centered)
+
+    4. **Smart Overlap Avoidance**
+       - Use `position="best"` for automatic placement
+       - Matplotlib's algorithm finds position with minimal data overlap
+
+    **Font Size Standardization:**
+    ```python
+    # Method 1: Manual standardization
+    fontsize = 14
+    ax.tick_params(labelsize=fontsize)
+    ax.set_xlabel("Time", fontsize=fontsize)
+    ax.set_ylabel("Response", fontsize=fontsize)
+    prs_legend(ax, position="top", fontsize=fontsize)
+
+    # Method 2: Helper function
+    from prs_dataviz import set_axis_fontsize
+    set_axis_fontsize(ax, fontsize=14)
+    prs_legend(ax, position="top", fontsize=14)
+    ```
+
+    **Usage Examples:**
+    ```python
+    # Fully automatic (recommended for bar charts)
+    prs_legend(ax, position="top-smart")
+
+    # With standardized font size
+    prs_legend(ax, position="top", fontsize=14)
+
+    # Smart inside positioning (avoids data overlap)
+    prs_legend(ax, position="best")
+    ```
+
+    **Key Benefits:**
+    - ✅ Bar charts automatically get prominent handles
+    - ✅ No manual `ncol` calculation needed
+    - ✅ Standardized font sizing across figure
+    - ✅ Works perfectly for no-title plots (PRS standard)
+
+    **Use Cases:** Bar charts, stacked charts, any plot where you want automatic optimal legend layout
+    """),
+        ]
+    )
     return
 
 

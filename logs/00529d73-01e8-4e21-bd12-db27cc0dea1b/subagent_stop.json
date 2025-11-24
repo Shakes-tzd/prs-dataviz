@@ -1,0 +1,42 @@
+[
+  {
+    "session_id": "00529d73-01e8-4e21-bd12-db27cc0dea1b",
+    "transcript_path": "/Users/shakes/.claude/projects/-Users-shakes-DevProjects-prs-dataviz/00529d73-01e8-4e21-bd12-db27cc0dea1b.jsonl",
+    "cwd": "/Users/shakes/DevProjects/prs-dataviz",
+    "permission_mode": "default",
+    "hook_event_name": "SubagentStop",
+    "stop_hook_active": false,
+    "agent_id": "78423197",
+    "agent_transcript_path": "/Users/shakes/.claude/projects/-Users-shakes-DevProjects-prs-dataviz/agent-78423197.jsonl"
+  },
+  {
+    "session_id": "00529d73-01e8-4e21-bd12-db27cc0dea1b",
+    "transcript_path": "/Users/shakes/.claude/projects/-Users-shakes-DevProjects-prs-dataviz/00529d73-01e8-4e21-bd12-db27cc0dea1b.jsonl",
+    "cwd": "/Users/shakes/DevProjects/prs-dataviz",
+    "permission_mode": "default",
+    "hook_event_name": "SubagentStop",
+    "stop_hook_active": false,
+    "agent_id": "9a8427d0",
+    "agent_transcript_path": "/Users/shakes/.claude/projects/-Users-shakes-DevProjects-prs-dataviz/agent-9a8427d0.jsonl"
+  },
+  {
+    "session_id": "00529d73-01e8-4e21-bd12-db27cc0dea1b",
+    "transcript_path": "/Users/shakes/.claude/projects/-Users-shakes-DevProjects-prs-dataviz/00529d73-01e8-4e21-bd12-db27cc0dea1b.jsonl",
+    "cwd": "/Users/shakes/DevProjects/prs-dataviz",
+    "permission_mode": "default",
+    "hook_event_name": "SubagentStop",
+    "stop_hook_active": false,
+    "agent_id": "6a9034cb",
+    "agent_transcript_path": "/Users/shakes/.claude/projects/-Users-shakes-DevProjects-prs-dataviz/agent-6a9034cb.jsonl"
+  },
+  {
+    "session_id": "00529d73-01e8-4e21-bd12-db27cc0dea1b",
+    "transcript_path": "/Users/shakes/.claude/projects/-Users-shakes-DevProjects-prs-dataviz/00529d73-01e8-4e21-bd12-db27cc0dea1b.jsonl",
+    "cwd": "/Users/shakes/DevProjects/prs-dataviz",
+    "permission_mode": "default",
+    "hook_event_name": "SubagentStop",
+    "stop_hook_active": false,
+    "agent_id": "155b1307",
+    "agent_transcript_path": "/Users/shakes/.claude/projects/-Users-shakes-DevProjects-prs-dataviz/agent-155b1307.jsonl"
+  }
+]
