@@ -134,5 +134,18 @@
       "description": "Commit changes with detailed message"
     },
     "tool_use_id": "toolu_01H9DTgK7hA5Kpy1nQBtWd3e"
+  },
+  {
+    "session_id": "00529d73-01e8-4e21-bd12-db27cc0dea1b",
+    "transcript_path": "/Users/shakes/.claude/projects/-Users-shakes-DevProjects-prs-dataviz/00529d73-01e8-4e21-bd12-db27cc0dea1b.jsonl",
+    "cwd": "/Users/shakes/DevProjects/prs-dataviz",
+    "permission_mode": "default",
+    "hook_event_name": "PreToolUse",
+    "tool_name": "Bash",
+    "tool_input": {
+      "command": "git push",
+      "description": "Push changes to remote repository"
+    },
+    "tool_use_id": "toolu_01TnnUWrMzZ7zGD718jVFLWm"
   }
 ]
