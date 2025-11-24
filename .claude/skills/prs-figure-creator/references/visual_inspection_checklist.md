@@ -44,7 +44,98 @@ set_axis_fontsize(ax, fontsize=12)
 prs_legend(ax, fontsize=12)
 
 # Reposition legend if overlapping
-prs_legend(ax, position="upper left")  # Or "outside", "top", etc.
+prs_legend(ax, position="outside")  # Safest - never overlaps data
+
+# Or for bar charts without titles:
+prs_legend(ax, position="top-smart")  # Standard journal placement
+```
+
+### Legend Placement (CRITICAL - Common Problem Area)
+
+**Based on [visualization standards](https://xdgov.github.io/data-design-standards/components/legends) and research:**
+
+- [ ] **Legend doesn't obscure ANY data points**?
+- [ ] **Legend position follows journal standards** (outside/below/top preferred)?
+- [ ] **Legend proximity appropriate** (not too far from relevant data)?
+- [ ] **Could direct labeling eliminate legend entirely**?
+
+**Journal Standard Positions (in order of preference)**:
+1. **Outside right** (safest, never overlaps, professional standard)
+2. **Top center** (for bar charts without titles, horizontal layout)
+3. **Below plot** (for titled figures, doesn't interrupt visual flow)
+4. **Upper right** (only if data sparse in that corner)
+
+**RED FLAGS** (requires immediate fix):
+- ❌ Legend using `position="best"` (non-standard, often poor choice)
+- ❌ Legend overlaps with any data points/bars/lines
+- ❌ Legend in middle of plot (interrupts data reading)
+- ❌ Legend too far from plot (breaks visual connection)
+- ❌ Legend could be replaced with direct labeling (simpler)
+
+**Evaluation Questions**:
+1. **Occlusion Check**: Does legend cover ANY data? → If yes, move to "outside"
+2. **Standard Check**: Is position outside/below/top? → If no, reconsider
+3. **Simplicity Check**: Could we label data directly? → If yes, prefer that
+4. **Proximity Check**: Is legend reasonably close to data? → Should be
+
+**Fixes for Common Legend Placement Errors**:
+
+```python
+# ERROR 1: Legend using "best" (non-standard)
+# BEFORE:
+prs_legend(ax, position="best")  # ❌ Avoid for publications
+
+# FIX:
+prs_legend(ax, position="outside")  # ✅ Journal standard
+
+# ERROR 2: Legend overlaps data points
+# BEFORE:
+prs_legend(ax, position="upper right")  # ❌ Data exists there
+
+# FIX:
+prs_legend(ax, position="outside")  # ✅ Never overlaps
+
+# ERROR 3: Bar chart with title + legend inside
+# BEFORE:
+prs_legend(ax, position="upper left")  # ❌ Non-standard
+
+# FIX:
+prs_legend(ax, position="outside")  # ✅ Professional standard
+
+# ERROR 4: Legend could be eliminated (3 or fewer series)
+# BEFORE:
+ax.bar(x, y1, label="Control")
+ax.bar(x, y2, label="Treatment")
+prs_legend(ax, position="outside")  # ❌ Unnecessary complexity
+
+# FIX - Direct labeling (BEST):
+ax.bar(x, y1, color=COMPARISON["Control"])
+ax.bar(x, y2, color=COMPARISON["Treatment"])
+# Add text labels directly on or near bars
+ax.text(x1, y1 + 1, "Control", ha='center', fontweight='bold')
+ax.text(x2, y2 + 1, "Treatment", ha='center', fontweight='bold')
+# ✅ No legend needed - cleaner, more direct
+```
+
+**Decision Flowchart**:
+```
+Can we use direct labeling (≤3 series, space allows)?
+├─ YES → Use direct text labels, NO LEGEND ✅ (Best option)
+└─ NO → Proceed to positioning decision
+
+Is this a bar chart without a title?
+├─ YES → position="top-smart" ✅ (Standard for PRS)
+└─ NO → Proceed to next check
+
+Is there dense data throughout the plot?
+├─ YES → position="outside" ✅ (Safest, never overlaps)
+└─ NO → Check for empty corners
+
+Is upper right corner empty (no data there)?
+├─ YES → position="upper right" ⚠️  (Acceptable, but outside preferred)
+└─ NO → position="outside" ✅ (Safest)
+
+AVOID: position="best" ❌ (Not optimized for publication standards)
 ```
 
 ---
